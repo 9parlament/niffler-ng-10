@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  infra:up:
+    desc: Start infrastructure services - postgres, kafka, zookeeper
+    cmds:
+      - docker-compose -f infra.yml up -d
+
+  infra:down:
+    desc: Shutdown infrastructure services - postgres, kafka, zookeeper
+    cmds:
+      - docker-compose -f infra.yml down
