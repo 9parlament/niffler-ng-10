@@ -23,7 +23,7 @@ allprojects {
 
 subprojects {
     ext {
-        dockerHubName = "qaguru"
+        dockerHubName = project.findProperty('registryName').toString() ?: 'qaguru'
 
         lombokVersion = '1.18.42'
         springKafkaVersion = '3.3.10'
