@@ -5,6 +5,7 @@ services:
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "secret"
+      TZ: ${TIMEZONE:-UTC}
     volumes:
       - ./postgres/script:/docker-entrypoint-initdb.d
       - ./postgres/pgdata:/var/lib/postgresql/data

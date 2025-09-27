@@ -1,5 +1,7 @@
 version: '3'
 
+dotenv: ['.env']
+
 tasks:
   infra:up:
     desc: Start infrastructure services - postgres, kafka, zookeeper
