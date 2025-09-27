@@ -32,10 +32,9 @@ dependencies {
 jib {
     container {
         ports = ['9000']
-        jvmFlags = ["-Dspring.profiles.active=${System.env.PROFILE}"]
         environment = [
-                'VAULT_TOKEN': "${System.env.VAULT_TOKEN}".toString(),
-                'TZ'         : 'Europe/Moscow'
+                'SPRING_PROFILES_ACTIVE': project.findProperty('profile').toString() ?: 'docker',
+                'TZ'                    : project.findProperty('timezone').toString() ?: 'UTC'
         ]
         creationTime = 'USE_CURRENT_TIMESTAMP'
         labels = [
@@ -53,8 +52,8 @@ jib {
         }
     }
     to {
-        image = "${project.ext.dockerHubName}/${project.name}-${System.env.PROFILE}"
-        tags = ['latest', "${project.version}"]
+        image = "${project.ext.dockerHubName}/${project.name}"
+        tags = ['latest']
     }
 }
 

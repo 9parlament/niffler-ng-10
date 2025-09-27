@@ -113,11 +113,6 @@ services:
   frontend.niffler.dc:
     container_name: frontend.niffler.dc
     image: ${REGISTRY:-qaguru}/niffler-ng-client:latest
-    build:
-      context: ./niffler-ng-client
-      dockerfile: ./Dockerfile
-      args:
-        NPM_COMMAND: build:docker
     ports:
       - "80:80"
     depends_on:
