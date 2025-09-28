@@ -4,14 +4,28 @@ dotenv: ['.env']
 
 tasks:
   infra:up:
-    desc: Start infrastructure services - postgres, kafka, zookeeper from infra.yml
+    desc: Start infrastructure services - postgres, kafka, zookeeper via infra.yml
     cmds:
       - docker-compose -f infra.yml up -d
 
   infra:down:
-    desc: Shutdown infrastructure services - postgres, kafka, zookeeper from infra.yml
+    desc: Shutdown infrastructure services - postgres, kafka, zookeeper
     cmds:
       - docker-compose -f infra.yml down
+
+  front:rest:
+    desc: Start fronted application with REST API
+    dir: ./niffler-ng-client
+    cmds:
+      - npm install
+      - npm run build:dev
+
+  front:gql:
+    desc: Start fronted application with GraphQL API
+    dir: ./niffler-ng-gql-client
+    cmds:
+      - npm install
+      - npm run build:dev
 
   app:build:
     desc: Build docker images of application services - backend via jib and fronted via dockerfile
