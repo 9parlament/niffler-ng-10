@@ -1,0 +1,56 @@
+version: '3'
+
+dotenv: ['.env']
+
+tasks:
+  infra:up:
+    desc: Start infrastructure services - postgres, kafka, zookeeper via infra.yml
+    cmds:
+      - docker-compose -f infra.yml up -d
+
+  infra:down:
+    desc: Shutdown infrastructure services - postgres, kafka, zookeeper
+    cmds:
+      - docker-compose -f infra.yml down
+
+  front:rest:
+    desc: Start fronted application with REST API
+    dir: ./niffler-ng-client
+    cmds:
+      - npm install
+      - npm run build:dev
+
+  front:gql:
+    desc: Start fronted application with GraphQL API
+    dir: ./niffler-ng-gql-client
+    cmds:
+      - npm install
+      - npm run build:dev
+
+  app:build:
+    desc: Build docker images of application services - backend via jib and fronted via dockerfile
+    cmds:
+      - ./gradlew jibDockerBuild -Pprofile={{.PROFILE}} -Ptimezone=$TIMEZONE -PregistryName=$REGISTRY -Duser.timezone=UTC
+      - docker build --build-arg NPM_COMMAND=build:docker -t ${REGISTRY:-qaguru}/niffler-ng-client:latest ./niffler-ng-client
+    vars:
+      PROFILE: "docker"
+    silent: true
+
+  app:run:
+    desc: Run docker containers with application services. Images should be exists
+    cmds:
+      - task: infra:down
+      - docker compose up -d
+
+  app:start:
+    desc: Build docker images and run application services
+    cmds:
+      - task: app:build {{.PROFILE}}
+      - task: app:run
+    vars:
+      PROFILE: "docker"
+
+  app:stop:
+    desc: Stop application microservices
+    cmds:
+      - docker compose down

@@ -30,7 +30,7 @@ protobuf {
     }
     plugins {
         grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${project.ext.grpcVersion}"
+            path = "/opt/homebrew/bin/protoc-gen-grpc-java"
         }
     }
     generateProtoTasks {
