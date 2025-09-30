@@ -57,6 +57,7 @@ subprojects {
         options {
             systemProperties(System.getProperties())
         }
+        systemProperty 'profile', findProperty('profile') ?: 'local'
         testLogging {
             showStandardStreams = true
             exceptionFormat = 'full'
