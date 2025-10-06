@@ -1,16 +1,28 @@
 package guru.qa.niffler.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.UUID;
 
-public record CategoryJson(
+@Setter
+@Getter
+@AllArgsConstructor
+@Accessors(chain = true)
+public class CategoryJson {
     @JsonProperty("id")
-    UUID id,
+    private UUID id;
     @JsonProperty("name")
-    String name,
+    private String name;
     @JsonProperty("username")
-    String username,
+    private String username;
     @JsonProperty("archived")
-    boolean archived) {
+    private boolean archived;
+
+    public static CategoryJson create(String username) {
+        return new CategoryJson(null, "1", username, false);
+    }
 }
