@@ -10,19 +10,27 @@ import static com.codeborne.selenide.Selenide.$;
 
 @Page(value = "/login", auth = true)
 public class LoginPage {
-    private static final String BAD_CREDENTIALS_ERROR = "Bad credentials";
+    private static final String BAD_CREDENTIALS_ERROR = "Неверные учетные данные пользователя";
     private final SelenideElement loginForm = $("#login-form");
     private final SelenideElement usernameInput = $("#username");
     private final SelenideElement passwordInput = $("#password");
     private final SelenideElement submitBtn = $("#login-button");
     private final SelenideElement registerButton = $("#register-button");
 
-    @Step("Авторизоваться в системе, используя логин {0} и пароль {1}")
+    @Step("Авторизоваться в системе, используя валидные логин {0} и пароль {1}")
     public MainPage login(String username, String password) {
         usernameInput.val(username);
         passwordInput.val(password);
         submitBtn.click();
         return new MainPage();
+    }
+
+    @Step("Ввести невалидные логин {0} и пароль {1}")
+    public LoginPage badLogin(String username, String password) {
+        usernameInput.val(username);
+        passwordInput.val(password);
+        submitBtn.click();
+        return new LoginPage();
     }
 
     @Step("Проверить, что страница авторизации открылась")

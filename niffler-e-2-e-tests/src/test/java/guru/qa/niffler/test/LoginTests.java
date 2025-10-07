@@ -25,4 +25,11 @@ class LoginTests {
                 .login(DEFAULT_USER.getUsername(), DEFAULT_USER.getPassword())
                 .checkIsOpened();
     }
+
+    @Test
+    void badCredentialsErrorShouldPresentIfUserDataIncorrectTest() {
+        Browser.open(LoginPage.class)
+                .badLogin(DEFAULT_USER.getUsername(), "incorrectPass")
+                .checkBadCredentialsError();
+    }
 }
