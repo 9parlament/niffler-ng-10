@@ -77,7 +77,7 @@ public class SpendApiClient {
 
     public CategoryJson createCategory(CategoryJson newCategory) {
         return executeWithAssert(spendApi.createCategory(newCategory),
-                SC_CREATED,
+                SC_OK,
                 "При создании категории возникла непредвиденная ошибка"
         );
     }
