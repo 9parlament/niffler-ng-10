@@ -1,16 +1,14 @@
 package guru.qa.niffler.test;
 
-import guru.qa.niffler.jupiter.extension.DefaultUserCreationExtension;
+import guru.qa.niffler.common.utils.NifflerFaker;
 import guru.qa.niffler.ui.core.Browser;
 import guru.qa.niffler.ui.page.SignUpPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import static guru.qa.niffler.model.User.DEFAULT_USER;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
-@ExtendWith(DefaultUserCreationExtension.class)
 @DisplayName("Регистрация нового пользователя")
 class SignUpTests {
 
@@ -26,8 +24,9 @@ class SignUpTests {
 
     @Test
     void successSignUpNewUserWithCorrectDataTest() {
+        String username = NifflerFaker.getUserName();
         Browser.open(SignUpPage.class)
-                .fillForm("duck", "321", "321")
+                .fillForm(username, "321", "321")
                 .signUp()
                 .checkSuccessSignUpMessage();
     }
