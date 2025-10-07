@@ -2,6 +2,7 @@ package guru.qa.niffler.test;
 
 import guru.qa.niffler.ui.page.LoginPage;
 import guru.qa.niffler.ui.core.Browser;
+import io.qameta.allure.Step;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +28,7 @@ class LoginTests {
     }
 
     @Test
+    @Step("Появление ошибки при попытке авторизации с невалидными данными")
     void badCredentialsErrorShouldPresentIfUserDataIncorrectTest() {
         Browser.open(LoginPage.class)
                 .badLogin(DEFAULT_USER.getUsername(), "incorrectPass")

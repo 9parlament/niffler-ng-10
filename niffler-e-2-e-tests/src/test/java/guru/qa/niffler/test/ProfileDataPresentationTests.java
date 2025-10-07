@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static guru.qa.niffler.model.User.DEFAULT_USER;
 
+//TODO: Осуществлять переход сразу на страницу профиля после реализации неявной авторизации
 @DisplayName("Отображение данных профиля")
 class ProfileDataPresentationTests {
 

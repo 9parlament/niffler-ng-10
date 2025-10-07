@@ -13,6 +13,7 @@ import static lombok.AccessLevel.PRIVATE;
 @NoArgsConstructor(access = PRIVATE)
 public class Browser {
 
+    //TODO: Подключить в extension
     public static void init() {
         Configuration.browser = CFG.browser();
         if (CFG.isRemoteBrowser()) setRemoteProperties();

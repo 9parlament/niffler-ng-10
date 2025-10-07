@@ -13,6 +13,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 class SignUpTests {
 
     @Test
+    @DisplayName("Появление ошибки валидации поля ввода, если подтверждение пароля не успешно")
     void validationErrShouldExistWhenSubmissionPasswordIsIncorrectTest() {
         String password = "pass";
         Browser.open(SignUpPage.class)
@@ -23,6 +24,7 @@ class SignUpTests {
     }
 
     @Test
+    @DisplayName("Успешная регистрация пользователя с валидными данными")
     void successSignUpNewUserWithCorrectDataTest() {
         String username = NifflerFaker.getUserName();
         Browser.open(SignUpPage.class)
@@ -32,6 +34,7 @@ class SignUpTests {
     }
 
     @Test
+    @DisplayName("Ошибка создания нового пользователя, если он уже имеется в системе")
     void signUpShouldFailedWhenUserAlreadyExist() {
         String existedUser = DEFAULT_USER.getUsername();
         Browser.open(SignUpPage.class)
@@ -41,6 +44,7 @@ class SignUpTests {
     }
 
     @Test
+    @DisplayName("Открытие страницы авторизации при переходе по ссылке \"Log in\"")
     void loginPageShouldOpenWhenLoginLinkIsClickedTest() {
         Browser.open(SignUpPage.class)
                 .returnToLoginPage()
