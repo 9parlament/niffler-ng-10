@@ -10,32 +10,32 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.util.Optional;
 
-public class SpendApiClient implements SpendClient{
+public class SpendApiClient implements SpendClient {
 
-  private static final Config CFG = Config.getInstance();
+    private static final Config CFG = Config.getInstance();
 
-  private final Retrofit retrofit = new Retrofit.Builder()
-      .baseUrl(CFG.spendUrl())
-      .addConverterFactory(JacksonConverterFactory.create())
-      .build();
+    private final Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl(CFG.spendUrl())
+            .addConverterFactory(JacksonConverterFactory.create())
+            .build();
 
-  private final SpendApi spendApi = retrofit.create(SpendApi.class);
+    private final SpendApi spendApi = retrofit.create(SpendApi.class);
 
-  @SneakyThrows
-  @Override
-  public SpendJson createSpend(SpendJson spend) {
-    return spendApi.createSpend(spend)
-        .execute()
-        .body();
-  }
+    @SneakyThrows
+    @Override
+    public SpendJson createSpend(SpendJson spend) {
+        return spendApi.createSpend(spend)
+                .execute()
+                .body();
+    }
 
-  @Override
-  public CategoryJson createCategory(CategoryJson category) {
-    throw new UnsupportedOperationException("Not implemented :(");
-  }
+    @Override
+    public CategoryJson createCategory(CategoryJson category) {
+        throw new UnsupportedOperationException("Not implemented :(");
+    }
 
-  @Override
-  public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName, String username) {
-    throw new UnsupportedOperationException("Not implemented :(");
-  }
+    @Override
+    public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName, String username) {
+        throw new UnsupportedOperationException("Not implemented :(");
+    }
 }

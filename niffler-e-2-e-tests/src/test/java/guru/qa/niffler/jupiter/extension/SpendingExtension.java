@@ -12,48 +12,48 @@ import java.util.Date;
 
 public class SpendingExtension implements BeforeEachCallback, ParameterResolver {
 
-  public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendingExtension.class);
-  private final SpendClient spendClient = new SpendApiClient();
+    public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendingExtension.class);
+    private final SpendClient spendClient = new SpendApiClient();
 
-  @Override
-  public void beforeEach(ExtensionContext context) throws Exception {
-    AnnotationSupport.findAnnotation(
-        context.getRequiredTestMethod(),
-        Spending.class
-    ).ifPresent(
-        anno -> {
-          final SpendJson created = spendClient.createSpend(
-              new SpendJson(
-                  null,
-                  new Date(),
-                  new CategoryJson(
-                      null,
-                      anno.category(),
-                      anno.username(),
-                      false
-                  ),
-                  anno.currency(),
-                  anno.amount(),
-                  anno.description(),
-                  anno.username()
-              )
-          );
-          context.getStore(NAMESPACE).put(
-              context.getUniqueId(),
-              created
-          );
-        }
-    );
-  }
+    @Override
+    public void beforeEach(ExtensionContext context) throws Exception {
+        AnnotationSupport.findAnnotation(
+                context.getRequiredTestMethod(),
+                Spending.class
+        ).ifPresent(
+                anno -> {
+                    final SpendJson created = spendClient.createSpend(
+                            new SpendJson(
+                                    null,
+                                    new Date(),
+                                    new CategoryJson(
+                                            null,
+                                            anno.category(),
+                                            anno.username(),
+                                            false
+                                    ),
+                                    anno.currency(),
+                                    anno.amount(),
+                                    anno.description(),
+                                    anno.username()
+                            )
+                    );
+                    context.getStore(NAMESPACE).put(
+                            context.getUniqueId(),
+                            created
+                    );
+                }
+        );
+    }
 
-  @Override
-  public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-    return parameterContext.getParameter().getType().isAssignableFrom(SpendJson.class);
-  }
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return parameterContext.getParameter().getType().isAssignableFrom(SpendJson.class);
+    }
 
-  @Override
-  public SpendJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-    return extensionContext.getStore(NAMESPACE)
-        .get(extensionContext.getUniqueId(), SpendJson.class);
-  }
+    @Override
+    public SpendJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        return extensionContext.getStore(NAMESPACE)
+                .get(extensionContext.getUniqueId(), SpendJson.class);
+    }
 }
