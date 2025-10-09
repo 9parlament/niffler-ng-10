@@ -1,41 +1,102 @@
 package guru.qa.niffler.service;
 
 import guru.qa.niffler.api.SpendApi;
-import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.CategoryJson;
+import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
-import lombok.SneakyThrows;
+import org.junit.jupiter.api.Assertions;
+import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-import java.util.Optional;
+import java.util.Date;
+import java.util.List;
 
-public class SpendApiClient implements SpendClient {
+import static guru.qa.niffler.config.Configuration.CFG;
+import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
+import static org.apache.hc.core5.http.HttpStatus.SC_CREATED;
+import static org.apache.hc.core5.http.HttpStatus.SC_OK;
 
-    private static final Config CFG = Config.getInstance();
+public class SpendApiClient {
 
     private final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(CFG.spendUrl())
+            .baseUrl(CFG.apiSpendUrl())
             .addConverterFactory(JacksonConverterFactory.create())
             .build();
 
     private final SpendApi spendApi = retrofit.create(SpendApi.class);
 
-    @SneakyThrows
-    @Override
-    public SpendJson createSpend(SpendJson spend) {
-        return spendApi.createSpend(spend)
-                .execute()
-                .body();
+    public SpendJson createSpend(SpendJson newSpend) {
+        return executeWithAssert(
+                spendApi.createSpend(newSpend),
+                SC_CREATED,
+                "При создании траты возникла непредвиденная ошибка"
+        );
     }
 
-    @Override
-    public CategoryJson createCategory(CategoryJson category) {
-        throw new UnsupportedOperationException("Not implemented :(");
+    public SpendJson editSpend(SpendJson editedSpend) {
+        return executeWithAssert(
+                spendApi.editSpend(editedSpend),
+                SC_OK,
+                "При изменении траты возникла непредвиденная ошибка"
+        );
     }
 
-    @Override
-    public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName, String username) {
-        throw new UnsupportedOperationException("Not implemented :(");
+    public void removeSpend(List<String> ids, String username) {
+        executeWithAssert(
+                spendApi.removeSpend(username, ids),
+                SC_ACCEPTED,
+                "При удалении траты возникла непредвиденная ошибка"
+        );
+    }
+
+    public SpendJson getSpend(String username, String id) {
+        return executeWithAssert(
+                spendApi.getSpend(username, id),
+                SC_OK,
+                "При запросе информации о трате возникла непредвиденная ошибка"
+        );
+    }
+
+    public List<SpendJson> getSpends(String username, Date from, Date to, CurrencyValues currency) {
+        return executeWithAssert(
+                spendApi.getSpends(username, currency, from, to),
+                SC_OK,
+                "При запросе информации о тратах возникла непредвиденная ошибка"
+        );
+    }
+
+    public List<CategoryJson> getCategories(String username, boolean excludeArchived) {
+        return executeWithAssert(
+                spendApi.getCategories(username, excludeArchived),
+                SC_OK,
+                "При запросе информации о категориях возникла непредвиденная ошибка"
+        );
+    }
+
+    public CategoryJson createCategory(CategoryJson newCategory) {
+        return executeWithAssert(spendApi.createCategory(newCategory),
+                SC_OK,
+                "При создании категории возникла непредвиденная ошибка"
+        );
+    }
+
+    public CategoryJson updateCategory(CategoryJson updatedCategory) {
+        return executeWithAssert(spendApi.updateCategory(updatedCategory),
+                SC_OK,
+                "При обновлении категории возникла непредвиденная ошибка"
+        );
+    }
+
+    private <T> T executeWithAssert(Call<T> call, int expectedStatus, String errorMessage) {
+        final Response<T> response;
+        try {
+            response = call.execute();
+        } catch (Exception e) {
+            throw new RuntimeException(errorMessage, e);
+        }
+        Assertions.assertEquals(expectedStatus, response.code());
+        return response.body();
     }
 }

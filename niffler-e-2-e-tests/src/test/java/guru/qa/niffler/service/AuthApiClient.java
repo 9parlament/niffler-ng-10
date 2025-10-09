@@ -11,12 +11,13 @@ import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 
-public class AuthApiClient {
+import static guru.qa.niffler.config.Configuration.CFG;
 
+public class AuthApiClient {
     private static final CookieManager cm = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
 
     private final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl("https://auth.niffler-stage.qa.guru/")
+            .baseUrl(CFG.apiAuthUrl())
             .addConverterFactory(JacksonConverterFactory.create())
             .client(new OkHttpClient.Builder()
                     .cookieJar(new JavaNetCookieJar(
