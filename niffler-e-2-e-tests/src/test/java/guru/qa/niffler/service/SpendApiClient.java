@@ -61,7 +61,7 @@ public class SpendApiClient {
 
     public List<SpendJson> getSpends(String username, Date from, Date to, CurrencyValues currency) {
         return executeWithAssert(
-                spendApi.getSpends(username, currency, from, to, ""),
+                spendApi.getSpends(username, currency, from, to),
                 SC_OK,
                 "При запросе информации о тратах возникла непредвиденная ошибка"
         );

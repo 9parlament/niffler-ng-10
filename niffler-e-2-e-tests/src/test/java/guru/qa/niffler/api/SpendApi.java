@@ -33,8 +33,7 @@ public interface SpendApi {
     Call<List<SpendJson>> getSpends(@Query("username") String username,
                                     @Query("filterCurrency") CurrencyValues currency,
                                     @Query("from") Date from,
-                                    @Query("to") Date to,
-                                    @Query("searchQuery") String searchFragment);
+                                    @Query("to") Date to);
 
     @GET("internal/categories/all")
     Call<List<CategoryJson>> getCategories(@Query("username") String username,

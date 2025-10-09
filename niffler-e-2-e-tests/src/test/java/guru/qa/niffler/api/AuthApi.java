@@ -8,10 +8,10 @@ import retrofit2.http.POST;
 
 public interface AuthApi {
 
-    @GET("/register")
+    @GET("register")
     Call<Void> requestRegisterForm();
 
-    @POST("/register")
+    @POST("register")
     @FormUrlEncoded
     Call<Void> register(
             @Field("username") String username,
