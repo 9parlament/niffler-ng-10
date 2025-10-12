@@ -13,7 +13,7 @@ public interface SuiteExtension extends BeforeAllCallback {
                         this.getClass(),
                         key -> {
                             beforeSuite(rootContext);
-                            return (AutoCloseable) this::afterSuite;
+                            return (AutoCloseable) () -> afterSuite(rootContext);
                         }
                 );
     }
@@ -21,6 +21,6 @@ public interface SuiteExtension extends BeforeAllCallback {
     default void beforeSuite(ExtensionContext context) {
     }
 
-    default void afterSuite() {
+    default void afterSuite(ExtensionContext context) {
     }
 }

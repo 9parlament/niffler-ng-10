@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import static guru.qa.niffler.config.Configuration.CFG;
 import static guru.qa.niffler.model.User.DEFAULT_USER;
 
+//TODO: Упразднить экстеншн после переноса логики по созданию умолчательног пользователя в TestUserCreationExtension
 public class DefaultUserCreationExtension implements SuiteExtension {
 
     @Override
@@ -21,7 +22,7 @@ public class DefaultUserCreationExtension implements SuiteExtension {
 
     @Override
     @SneakyThrows
-    public void afterSuite() {
+    public void afterSuite(ExtensionContext context) {
         String sql = """
                 DELETE FROM authority WHERE user_id IN (SELECT id FROM "user" WHERE username = ?);
                 DELETE FROM "user" WHERE username = ?;

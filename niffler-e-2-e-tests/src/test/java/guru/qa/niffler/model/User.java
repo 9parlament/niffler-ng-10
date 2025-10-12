@@ -3,6 +3,7 @@ package guru.qa.niffler.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+//TODO: Упразднить после перехода на реализацию через TestUserCreationExtension
 @Getter
 @RequiredArgsConstructor
 public enum User {
