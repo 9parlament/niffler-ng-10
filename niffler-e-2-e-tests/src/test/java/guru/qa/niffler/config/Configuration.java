@@ -41,6 +41,9 @@ public interface Configuration extends Config {
     @Key("url.api.auth")
     String apiAuthUrl();
 
+    @Key("url.api.userdata")
+    String apiUserdataUrl();
+
     // Database Configuration
     @Key("db.username")
     String dbUsername();

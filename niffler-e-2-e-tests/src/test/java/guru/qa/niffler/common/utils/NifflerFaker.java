@@ -11,11 +11,15 @@ import static org.apache.commons.lang3.StringUtils.SPACE;
 public class NifflerFaker {
     private static final Faker FAKER = new Faker();
 
-    public static String getCategoryName() {
+    public static String randomCategoryName() {
         return FAKER.funnyName().name() + FAKER.number().randomDigit();
     }
 
-    public static String getUserName() {
+    public static String randomUserName() {
         return FAKER.gameOfThrones().character().replace(SPACE, EMPTY) + FAKER.number().randomDigit();
+    }
+
+    public static String randomPassword() {
+        return String.valueOf(FAKER.number().numberBetween(100, 999));
     }
 }

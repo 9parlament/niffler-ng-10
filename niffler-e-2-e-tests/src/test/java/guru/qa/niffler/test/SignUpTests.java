@@ -26,7 +26,7 @@ class SignUpTests {
     @Test
     @DisplayName("Успешная регистрация пользователя с валидными данными")
     void successSignUpNewUserWithCorrectDataTest() {
-        String username = NifflerFaker.getUserName();
+        String username = NifflerFaker.randomUserName();
         Browser.open(SignUpPage.class)
                 .fillForm(username, "321", "321")
                 .signUp()

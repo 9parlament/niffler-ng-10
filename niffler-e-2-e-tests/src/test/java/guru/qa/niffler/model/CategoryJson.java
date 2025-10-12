@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 
 import java.util.UUID;
 
-import static guru.qa.niffler.common.utils.NifflerFaker.getCategoryName;
+import static guru.qa.niffler.common.utils.NifflerFaker.randomCategoryName;
 
 @Setter
 @Getter
@@ -27,6 +27,6 @@ public class CategoryJson {
     private boolean archived;
 
     public static CategoryJson create(String username) {
-        return new CategoryJson(null, getCategoryName(), username, false);
+        return new CategoryJson(null, randomCategoryName(), username, false);
     }
 }
