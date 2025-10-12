@@ -4,9 +4,6 @@ import guru.qa.niffler.api.SpendApi;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
-import org.junit.jupiter.api.Assertions;
-import retrofit2.Call;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
@@ -18,13 +15,11 @@ import static org.apache.hc.core5.http.HttpStatus.SC_ACCEPTED;
 import static org.apache.hc.core5.http.HttpStatus.SC_CREATED;
 import static org.apache.hc.core5.http.HttpStatus.SC_OK;
 
-public class SpendApiClient {
-
+public class SpendApiClient implements ApiClient {
     private final Retrofit retrofit = new Retrofit.Builder()
             .baseUrl(CFG.apiSpendUrl())
             .addConverterFactory(JacksonConverterFactory.create())
             .build();
-
     private final SpendApi spendApi = retrofit.create(SpendApi.class);
 
     public SpendJson createSpend(SpendJson newSpend) {
@@ -87,16 +82,5 @@ public class SpendApiClient {
                 SC_OK,
                 "При обновлении категории возникла непредвиденная ошибка"
         );
-    }
-
-    private <T> T executeWithAssert(Call<T> call, int expectedStatus, String errorMessage) {
-        final Response<T> response;
-        try {
-            response = call.execute();
-        } catch (Exception e) {
-            throw new RuntimeException(errorMessage, e);
-        }
-        Assertions.assertEquals(expectedStatus, response.code());
-        return response.body();
     }
 }
