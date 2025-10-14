@@ -31,6 +31,20 @@ public class MainPage {
         return new ProfilePage();
     }
 
+    @Step("Перейти на страницу отображения всех пользователей системы")
+    public PeoplePage goToPeoplePage() {
+        openUserActionsMenu();
+        userMenuOptions.findBy(text("All People")).click();
+        return new PeoplePage();
+    }
+
+    @Step("Перейти на страницу отображения друзей пользователя")
+    public PeoplePage goToFriendsPage() {
+        openUserActionsMenu();
+        userMenuOptions.findBy(text("Friends")).click();
+        return new PeoplePage();
+    }
+
     private void openUserActionsMenu() {
         pageHeader.$("button").click();
     }
