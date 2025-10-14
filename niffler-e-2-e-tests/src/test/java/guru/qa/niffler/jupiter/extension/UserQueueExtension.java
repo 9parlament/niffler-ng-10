@@ -55,6 +55,7 @@ public class UserQueueExtension implements
         context.getStore(NAMESPACE).put(context.getUniqueId(), queue);
     }
 
+    //TODO: После добавления тестов на взаимодействие с друзьями добавить реализацию восстановления типа пользователей
     @Override
     @SuppressWarnings("unchecked")
     public void afterEach(ExtensionContext context) {
