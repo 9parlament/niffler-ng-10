@@ -1,6 +1,7 @@
 package guru.qa.niffler.test;
 
 import guru.qa.niffler.jupiter.annotation.Category;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.ui.core.Browser;
 import guru.qa.niffler.ui.page.LoginPage;
@@ -14,7 +15,7 @@ import static guru.qa.niffler.model.User.DEFAULT_USER;
 class ProfileDataPresentationTests {
 
     @Test
-    @Category(isArchived = true)
+    @User(categories = @Category(isArchived = true))
     @DisplayName("Отображение архивной категории в списке, если опция \"Show archived\" активна")
     void archivedCategoryShouldPresentInCategoriesWhenShowArchivedIsEnabledTest(CategoryJson category) {
         Browser.open(LoginPage.class)
@@ -25,7 +26,7 @@ class ProfileDataPresentationTests {
     }
 
     @Test
-    @Category(isArchived = false)
+    @User(categories = @Category(isArchived = false))
     @DisplayName("Отображение активной категории в списке категорий после перехода на страницу профиля")
     void activeCategoryShouldPresentInCategoriesWhenProfilePageIsOpenedTest(CategoryJson category) {
         Browser.open(LoginPage.class)
@@ -36,7 +37,7 @@ class ProfileDataPresentationTests {
 
 
     @Test
-    @Category(isArchived = false)
+    @User(categories = @Category(isArchived = false))
     @DisplayName("Исчезновение активной категории из списка после её архивации. Опция \"Show archived\" не активна")
     void activeCategoryShouldNotPresentInCategoriesAfterArchiveThatTest(CategoryJson category) {
         Browser.open(LoginPage.class)
@@ -48,7 +49,7 @@ class ProfileDataPresentationTests {
     }
 
     @Test
-    @Category(isArchived = true)
+    @User(categories = @Category(isArchived = true))
     @DisplayName("Появление архивной категории в списке после её разархивации")
     void archivedCategoryShouldBeActiveAndPresentInCategoriesAfterUnarchiveThatTest(CategoryJson category) {
         Browser.open(LoginPage.class)

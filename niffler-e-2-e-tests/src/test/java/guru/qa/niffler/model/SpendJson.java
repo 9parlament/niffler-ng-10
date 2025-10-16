@@ -1,23 +1,39 @@
 package guru.qa.niffler.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 import java.util.UUID;
 
-public record SpendJson(
-        @JsonProperty("id")
-        UUID id,
-        @JsonProperty("spendDate")
-        Date spendDate,
-        @JsonProperty("category")
-        CategoryJson category,
-        @JsonProperty("currency")
-        CurrencyValues currency,
-        @JsonProperty("amount")
-        Double amount,
-        @JsonProperty("description")
-        String description,
-        @JsonProperty("username")
-        String username) {
+import static guru.qa.niffler.model.CurrencyValues.RUB;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Accessors(chain = true)
+public class SpendJson {
+    @JsonProperty("id")
+    private UUID id;
+    @JsonProperty("spendDate")
+    private Date spendDate;
+    @JsonProperty("category")
+    private CategoryJson category;
+    @JsonProperty("currency")
+    private CurrencyValues currency;
+    @JsonProperty("amount")
+    private Double amount;
+    @JsonProperty("description")
+    private String description;
+    @JsonProperty("username")
+    private String username;
+
+    public static SpendJson create(CategoryJson category, Double amount, String description, String username) {
+        return new SpendJson(null, new Date(), category, RUB, amount, description, username);
+    }
 }
