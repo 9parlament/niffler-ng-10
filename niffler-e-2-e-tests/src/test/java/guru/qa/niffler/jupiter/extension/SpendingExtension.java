@@ -1,52 +1,48 @@
 package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.Spending;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.service.SpendApiClient;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 
-import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
-public class SpendingExtension implements BeforeEachCallback, ParameterResolver {
+import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 
-    public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(SpendingExtension.class);
+public class SpendingExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
+    public static final Namespace NAMESPACE = Namespace.create(SpendingExtension.class);
     private final SpendApiClient spendClient = new SpendApiClient();
 
     @Override
-    public void beforeEach(ExtensionContext context) throws Exception {
-        AnnotationSupport.findAnnotation(
-                context.getRequiredTestMethod(),
-                Spending.class
-        ).ifPresent(
-                anno -> {
-                    final SpendJson created = spendClient.createSpend(
-                            new SpendJson(
-                                    null,
-                                    new Date(),
-                                    new CategoryJson(
-                                            null,
-                                            anno.category(),
-                                            anno.username(),
-                                            false
-                                    ),
-                                    anno.currency(),
-                                    anno.amount(),
-                                    anno.description(),
-                                    anno.username()
-                            )
-                    );
-                    context.getStore(NAMESPACE).put(
-                            context.getUniqueId(),
-                            created
-                    );
-                }
-        );
+    public void beforeEach(ExtensionContext context) {
+        AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
+                .ifPresent(ann -> {
+                            if (isNotEmpty(ann.spending())) {
+                                Spending spending = ann.spending()[0];
+                                CategoryJson category = CategoryJson.create(ann.user().getUsername(), spending.category());
+                                var reqBody = SpendJson.create(category, spending.amount(), spending.description(), ann.user().getUsername());
+                                SpendJson createdS = spendClient.createSpend(reqBody);
+                                context.getStore(NAMESPACE).put(context.getUniqueId(), createdS);
+                            }
+                        }
+                );
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) {
+        SpendJson storedSpending = context.getStore(NAMESPACE).get(context.getUniqueId(), SpendJson.class);
+        if (Objects.nonNull(storedSpending))
+            spendClient.removeSpend(List.of(storedSpending.getId().toString()), storedSpending.getUsername());
     }
 
     @Override
@@ -56,7 +52,6 @@ public class SpendingExtension implements BeforeEachCallback, ParameterResolver 
 
     @Override
     public SpendJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return extensionContext.getStore(NAMESPACE)
-                .get(extensionContext.getUniqueId(), SpendJson.class);
+        return extensionContext.getStore(NAMESPACE).get(extensionContext.getUniqueId(), SpendJson.class);
     }
 }

@@ -1,6 +1,7 @@
 package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.Category;
+import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.service.SpendApiClient;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
@@ -12,18 +13,28 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 
+import java.util.Objects;
+
+import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
 public class CategoryExtension implements BeforeEachCallback, ParameterResolver, AfterTestExecutionCallback {
     private static final Namespace NAMESPACE = Namespace.create(CategoryExtension.class);
     private final SpendApiClient spendApi = new SpendApiClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        Category category = AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), Category.class).get();
-        CategoryJson createdCategory = spendApi.createCategory(CategoryJson.create(category.user().getUsername()));
-        context.getStore(NAMESPACE).put(context.getUniqueId(), category.isArchived()
-                ? spendApi.updateCategory(createdCategory.setArchived(true))
-                : createdCategory
-        );
+        AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
+                .ifPresent(ann -> {
+                    if (isNotEmpty(ann.categories())) {
+                        Category category = ann.categories()[0];
+                        CategoryJson createdCategory = spendApi.createCategory(CategoryJson.create(ann.user().getUsername(), EMPTY));
+                        context.getStore(NAMESPACE).put(context.getUniqueId(), category.isArchived()
+                                ? spendApi.updateCategory(createdCategory.setArchived(true))
+                                : createdCategory
+                        );
+                    }
+                });
     }
 
     @Override
@@ -39,6 +50,6 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
     @Override
     public void afterTestExecution(ExtensionContext context) {
         CategoryJson category = context.getStore(NAMESPACE).get(context.getUniqueId(), CategoryJson.class);
-        if (!category.isArchived()) spendApi.updateCategory(category.setArchived(true));
+        if (Objects.nonNull(category) && !category.isArchived()) spendApi.updateCategory(category.setArchived(true));
     }
 }
