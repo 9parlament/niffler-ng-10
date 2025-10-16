@@ -17,6 +17,7 @@ import org.junit.platform.commons.support.AnnotationSupport;
 import java.util.List;
 import java.util.Objects;
 
+import static guru.qa.niffler.common.utils.NifflerFaker.randomCategoryName;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 
 public class SpendingExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
@@ -41,8 +42,11 @@ public class SpendingExtension implements BeforeEachCallback, AfterEachCallback,
     @Override
     public void afterEach(ExtensionContext context) {
         SpendJson storedSpending = context.getStore(NAMESPACE).get(context.getUniqueId(), SpendJson.class);
-        if (Objects.nonNull(storedSpending))
+        if (Objects.nonNull(storedSpending)) {
+            //TODO: после реализовать удаления из БД... ох уж этот подход...
+            spendClient.updateCategory(storedSpending.getCategory().setName(randomCategoryName()).setArchived(true));
             spendClient.removeSpend(List.of(storedSpending.getId().toString()), storedSpending.getUsername());
+        }
     }
 
     @Override

@@ -15,8 +15,8 @@ import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.Objects;
 
+import static guru.qa.niffler.common.utils.NifflerFaker.randomCategoryName;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 public class CategoryExtension implements BeforeEachCallback, ParameterResolver, AfterTestExecutionCallback {
     private static final Namespace NAMESPACE = Namespace.create(CategoryExtension.class);
@@ -28,7 +28,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
                 .ifPresent(ann -> {
                     if (isNotEmpty(ann.categories())) {
                         Category category = ann.categories()[0];
-                        CategoryJson createdCategory = spendApi.createCategory(CategoryJson.create(ann.user().getUsername(), EMPTY));
+                        CategoryJson createdCategory = spendApi.createCategory(CategoryJson.create(ann.user().getUsername(),  category.name()));
                         context.getStore(NAMESPACE).put(context.getUniqueId(), category.isArchived()
                                 ? spendApi.updateCategory(createdCategory.setArchived(true))
                                 : createdCategory
@@ -50,6 +50,8 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
     @Override
     public void afterTestExecution(ExtensionContext context) {
         CategoryJson category = context.getStore(NAMESPACE).get(context.getUniqueId(), CategoryJson.class);
-        if (Objects.nonNull(category) && !category.isArchived()) spendApi.updateCategory(category.setArchived(true));
+        if (Objects.nonNull(category) && !category.isArchived()) {
+            spendApi.updateCategory(category.setArchived(true).setName(randomCategoryName()));
+        }
     }
 }
