@@ -1,7 +1,9 @@
 package guru.qa.niffler.test;
 
+import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
+import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.ui.core.Browser;
 import guru.qa.niffler.ui.page.LoginPage;
@@ -33,5 +35,26 @@ class SpendingPresentationTests {
         Browser.open(LoginPage.class)
                 .login(DEFAULT_USER.getUsername(), DEFAULT_USER.getPassword())
                 .checkThatSpendingExistInHistoryOfSpendings(spending);
+    }
+
+    @Test
+    @User(
+            spending = @Spending(
+                    category = "Развлечения",
+                    description = "Виндсерфинг",
+                    amount = 2000
+            ),
+            categories = @Category(
+                    name = "Тренировки",
+                    isArchived = false))
+    @DisplayName("Обновленное значение траты отображается в истории трат, после её изменения")
+    void updatedSpendingShouldBePresentOnHistoryOfSpendingsAfterThatChangingTest(SpendJson spending, CategoryJson category) {
+        Browser.open(LoginPage.class)
+                .login(DEFAULT_USER.getUsername(), DEFAULT_USER.getPassword())
+                .checkThatSpendingExistInHistoryOfSpendings(spending)
+                .changeSpending(spending)
+                .selectCategoryFromAvailableActive(category)
+                .saveChanges()
+                .checkThatSpendingExistInHistoryOfSpendings(spending.setCategory(category));
     }
 }

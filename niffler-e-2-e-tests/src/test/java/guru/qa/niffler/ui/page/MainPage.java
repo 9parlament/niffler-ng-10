@@ -42,14 +42,20 @@ public class MainPage {
 
     @Step("Проверить, что трата отображается в истории трат пользователя")
     public MainPage checkThatSpendingExistInHistoryOfSpendings(SpendJson spending) {
-        ElementsCollection spendingRow = $(SPENDING_ROW_S.formatted(spending.getId()))
-                .closest("tr")
-                .$$("span.MuiTypography-root");
-        spendingRow.get(0).as("ячейка Category").shouldHave(text(spending.getCategory().getName()));
-        spendingRow.get(1).as("ячейка Amount").shouldHave(amount(spending.getAmount(), spending.getCurrency()));
-        spendingRow.get(2).as("ячейка Description").shouldHave(text(spending.getDescription()));
-        spendingRow.get(3).as("ячейка Date").shouldHave(date(spending.getSpendDate()));
+        ElementsCollection spendingRowCells = getSpendingRow(spending).$$("span.MuiTypography-root");
+        spendingRowCells.get(0).as("ячейка Category").shouldHave(text(spending.getCategory().getName()));
+        spendingRowCells.get(1).as("ячейка Amount").shouldHave(amount(spending.getAmount(), spending.getCurrency()));
+        spendingRowCells.get(2).as("ячейка Description").shouldHave(text(spending.getDescription()));
+        spendingRowCells.get(3).as("ячейка Date").shouldHave(date(spending.getSpendDate()));
         return this;
+    }
+
+    @Step("Перейти на страницу редактированию траты")
+    public EditSpendingPage changeSpending(SpendJson spending) {
+        getSpendingRow(spending).$("button")
+                .as("кнопка редактирования траты")
+                .click();
+        return new EditSpendingPage();
     }
 
     @Step("Перейти на страницу профиля пользователя")
@@ -71,6 +77,10 @@ public class MainPage {
         openUserActionsMenu();
         userMenuOptions.findBy(text("Friends")).click();
         return new PeoplePage();
+    }
+
+    private SelenideElement getSpendingRow(SpendJson spending) {
+        return $(SPENDING_ROW_S.formatted(spending.getId())).closest("tr");
     }
 
     private void openUserActionsMenu() {
