@@ -1,7 +1,7 @@
-package guru.qa.niffler.service;
+package guru.qa.niffler.api.rest;
 
-import guru.qa.niffler.api.UserApi;
-import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.api.rest.spec.UserApi;
+import guru.qa.niffler.model.api.UserJson;
 import lombok.SneakyThrows;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;

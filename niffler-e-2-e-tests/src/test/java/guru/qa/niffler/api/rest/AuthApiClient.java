@@ -1,6 +1,6 @@
-package guru.qa.niffler.service;
+package guru.qa.niffler.api.rest;
 
-import guru.qa.niffler.api.AuthApi;
+import guru.qa.niffler.api.rest.spec.AuthApi;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
 import retrofit2.Response;

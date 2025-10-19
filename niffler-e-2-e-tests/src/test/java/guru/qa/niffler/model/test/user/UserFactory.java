@@ -1,8 +1,8 @@
 package guru.qa.niffler.data.user;
 
 import guru.qa.niffler.common.utils.NifflerFaker;
-import guru.qa.niffler.service.AuthApiClient;
-import guru.qa.niffler.service.UserApiClient;
+import guru.qa.niffler.api.rest.AuthApiClient;
+import guru.qa.niffler.api.rest.UserApiClient;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
