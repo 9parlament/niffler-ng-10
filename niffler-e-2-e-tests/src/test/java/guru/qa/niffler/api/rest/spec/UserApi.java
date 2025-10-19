@@ -1,6 +1,6 @@
-package guru.qa.niffler.api;
+package guru.qa.niffler.api.rest.spec;
 
-import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.model.api.UserJson;
 import retrofit2.Call;
 import retrofit2.http.POST;
 import retrofit2.http.Query;

@@ -1,6 +1,8 @@
-package guru.qa.niffler.model;
+package guru.qa.niffler.model.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import guru.qa.niffler.model.CurrencyValues;
+import guru.qa.niffler.model.FriendshipStatus;
 
 import java.util.UUID;
 

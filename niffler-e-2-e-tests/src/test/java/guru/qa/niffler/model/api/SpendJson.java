@@ -1,6 +1,6 @@
-package guru.qa.niffler.model;
+package guru.qa.niffler.model.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import guru.qa.niffler.model.CurrencyValues;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,19 +18,12 @@ import static guru.qa.niffler.model.CurrencyValues.RUB;
 @AllArgsConstructor
 @Accessors(chain = true)
 public class SpendJson {
-    @JsonProperty("id")
     private UUID id;
-    @JsonProperty("spendDate")
     private Date spendDate;
-    @JsonProperty("category")
     private CategoryJson category;
-    @JsonProperty("currency")
     private CurrencyValues currency;
-    @JsonProperty("amount")
     private Double amount;
-    @JsonProperty("description")
     private String description;
-    @JsonProperty("username")
     private String username;
 
     public static SpendJson create(CategoryJson category, Double amount, String description, String username) {

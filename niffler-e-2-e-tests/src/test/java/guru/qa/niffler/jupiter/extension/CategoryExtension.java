@@ -2,8 +2,8 @@ package guru.qa.niffler.jupiter.extension;
 
 import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.User;
-import guru.qa.niffler.model.CategoryJson;
-import guru.qa.niffler.service.SpendApiClient;
+import guru.qa.niffler.model.api.CategoryJson;
+import guru.qa.niffler.api.rest.SpendApiClient;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;

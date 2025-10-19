@@ -1,4 +1,4 @@
-package guru.qa.niffler.service;
+package guru.qa.niffler.api.rest;
 
 import org.junit.jupiter.api.Assertions;
 import retrofit2.Call;

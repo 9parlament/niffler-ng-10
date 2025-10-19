@@ -1,9 +1,9 @@
-package guru.qa.niffler.service;
+package guru.qa.niffler.api.rest;
 
-import guru.qa.niffler.api.SpendApi;
-import guru.qa.niffler.model.CategoryJson;
+import guru.qa.niffler.api.rest.spec.SpendApi;
+import guru.qa.niffler.model.api.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
-import guru.qa.niffler.model.SpendJson;
+import guru.qa.niffler.model.api.SpendJson;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 

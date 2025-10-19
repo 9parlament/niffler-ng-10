@@ -1,6 +1,6 @@
 package guru.qa.niffler.jupiter.extension;
 
-import guru.qa.niffler.service.AuthApiClient;
+import guru.qa.niffler.api.rest.AuthApiClient;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.extension.ExtensionContext;
 

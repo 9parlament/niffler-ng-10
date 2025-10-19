@@ -1,4 +1,4 @@
-package guru.qa.niffler.api;
+package guru.qa.niffler.api.rest.spec;
 
 import retrofit2.Call;
 import retrofit2.http.Field;

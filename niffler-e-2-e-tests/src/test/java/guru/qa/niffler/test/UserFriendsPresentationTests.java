@@ -1,6 +1,6 @@
 package guru.qa.niffler.test;
 
-import guru.qa.niffler.data.user.User;
+import guru.qa.niffler.model.test.user.User;
 import guru.qa.niffler.jupiter.annotation.UserT;
 import guru.qa.niffler.jupiter.extension.UserQueueExtension;
 import guru.qa.niffler.ui.core.Browser;
@@ -9,10 +9,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static guru.qa.niffler.data.user.UserType.EMPTY;
-import static guru.qa.niffler.data.user.UserType.WITH_FRIEND;
-import static guru.qa.niffler.data.user.UserType.WITH_INCOME_REQUEST;
-import static guru.qa.niffler.data.user.UserType.WITH_OUTCOME_REQUEST;
+import static guru.qa.niffler.model.test.user.UserType.EMPTY;
+import static guru.qa.niffler.model.test.user.UserType.WITH_FRIEND;
+import static guru.qa.niffler.model.test.user.UserType.WITH_INCOME_REQUEST;
+import static guru.qa.niffler.model.test.user.UserType.WITH_OUTCOME_REQUEST;
 
 
 @ExtendWith(UserQueueExtension.class)

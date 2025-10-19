@@ -1,7 +1,7 @@
 package guru.qa.niffler.ui.page;
 
 import com.codeborne.selenide.ElementsCollection;
-import guru.qa.niffler.data.user.User;
+import guru.qa.niffler.model.test.user.User;
 import io.qameta.allure.Step;
 
 import java.util.List;

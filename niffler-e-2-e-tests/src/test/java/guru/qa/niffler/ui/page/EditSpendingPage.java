@@ -2,7 +2,7 @@ package guru.qa.niffler.ui.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import guru.qa.niffler.model.CategoryJson;
+import guru.qa.niffler.model.api.CategoryJson;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.text;

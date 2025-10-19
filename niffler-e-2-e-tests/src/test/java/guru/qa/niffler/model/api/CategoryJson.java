@@ -1,6 +1,5 @@
-package guru.qa.niffler.model;
+package guru.qa.niffler.model.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,13 +16,9 @@ import static guru.qa.niffler.common.utils.NifflerFaker.randomCategoryName;
 @AllArgsConstructor
 @Accessors(chain = true)
 public class CategoryJson {
-    @JsonProperty("id")
     private UUID id;
-    @JsonProperty("name")
     private String name;
-    @JsonProperty("username")
     private String username;
-    @JsonProperty("archived")
     private boolean archived;
 
     public static CategoryJson create(String username, String name) {

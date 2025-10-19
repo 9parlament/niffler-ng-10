@@ -1,8 +1,8 @@
 package guru.qa.niffler.jupiter.extension;
 
-import guru.qa.niffler.data.user.UserFactory;
-import guru.qa.niffler.data.user.User;
-import guru.qa.niffler.data.user.UserType;
+import guru.qa.niffler.model.test.user.UserFactory;
+import guru.qa.niffler.model.test.user.User;
+import guru.qa.niffler.model.test.user.UserType;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
