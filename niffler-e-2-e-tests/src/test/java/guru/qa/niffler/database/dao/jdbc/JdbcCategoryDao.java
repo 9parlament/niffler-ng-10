@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,7 +20,6 @@ public class JdbcCategoryDao implements CategoryDao {
 
     public CategoryEntity save(CategoryEntity categoryEntity) {
         String insertSql = "INSERT INTO category(name, username, archived) VALUES (?, ?, ?)";
-        UUID generatedId = null;
         try (Connection connection = DriverManager.getConnection(SPEND_DB_URL);
              PreparedStatement statement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)
         ) {
@@ -28,12 +29,13 @@ public class JdbcCategoryDao implements CategoryDao {
 
             statement.executeUpdate();
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
-                if (resultSet.next()) generatedId = resultSet.getObject("id", UUID.class);
+                resultSet.next();
+                UUID generatedId = resultSet.getObject("id", UUID.class);
+                return categoryEntity.setId(generatedId);
             }
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при сохранении категории", e);
         }
-        return categoryEntity.setId(generatedId);
     }
 
     public Optional<CategoryEntity> findById(UUID id) {
@@ -44,16 +46,72 @@ public class JdbcCategoryDao implements CategoryDao {
         ) {
             statement.setObject(1, UUID.class);
             try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    entity.setId(resultSet.getObject("id", UUID.class));
-                    entity.setName(resultSet.getString("name"));
-                    entity.setUsername(resultSet.getString("username"));
-                    entity.setArchived(resultSet.getBoolean("archived"));
+                return resultSet.next()
+                        ? Optional.of(mapRowToCategory(resultSet))
+                        : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при получении категории по её id", e);
+        }
+    }
+
+    @Override
+    public Optional<CategoryEntity> findByUsernameAndCategoryName(String username, String categoryName) {
+        String selectSql = "SELECT * FROM category WHERE username = ? AND name = ?";
+        try (Connection connection = DriverManager.getConnection(SPEND_DB_URL);
+             PreparedStatement statement = connection.prepareStatement(selectSql);
+        ) {
+            statement.setString(1, username);
+            statement.setString(2, categoryName);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next()
+                        ? Optional.of(mapRowToCategory(resultSet))
+                        : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при получении категории", e);
+        }
+    }
+
+    @Override
+    public List<CategoryEntity> findAllByUsername(String username) {
+        String selectSql = "SELECT * FROM category WHERE username = ?";
+        List<CategoryEntity> categories;
+        try (Connection connection = DriverManager.getConnection(SPEND_DB_URL);
+             PreparedStatement statement = connection.prepareStatement(selectSql)
+        ) {
+            statement.setString(1, username);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                categories = new ArrayList<>();
+                while (resultSet.next()) {
+                    CategoryEntity category = mapRowToCategory(resultSet);
+                    categories.add(category);
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка при получении траты по её id", e);
+            throw new RuntimeException("Ошибка при получении категории", e);
         }
-        return Optional.of(entity);
+        return categories;
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        String deleteSql = "DELETE FROM category WHERE id = ?";
+        try (Connection connection = DriverManager.getConnection(SPEND_DB_URL);
+             PreparedStatement statement = connection.prepareStatement(deleteSql)
+        ) {
+            statement.setObject(1, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при удалении категории", e);
+        }
+    }
+
+    private CategoryEntity mapRowToCategory(ResultSet resultSet) throws SQLException {
+        return new CategoryEntity()
+                .setId(resultSet.getObject("id", UUID.class))
+                .setName(resultSet.getString("name"))
+                .setUsername(resultSet.getString("username"))
+                .setArchived(resultSet.getBoolean("archived"));
     }
 }
