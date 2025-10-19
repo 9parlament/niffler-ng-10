@@ -1,17 +1,15 @@
 package guru.qa.niffler.jupiter.annotation;
 
+import guru.qa.niffler.data.user.UserType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Spending {
+public @interface UserT {
 
-    String category();
-
-    String description();
-
-    double amount();
+    UserType value();
 }

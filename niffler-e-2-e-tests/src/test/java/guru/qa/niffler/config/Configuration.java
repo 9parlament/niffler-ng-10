@@ -35,6 +35,9 @@ public interface Configuration extends Config {
     @Key("url.front.auth")
     String frontAuthUrl();
 
+    @Key("url.api.gateway")
+    String apiGatewayUrl();
+
     @Key("url.api.spend")
     String apiSpendUrl();
 
