@@ -26,7 +26,10 @@ public class CategoryJson {
     @JsonProperty("archived")
     private boolean archived;
 
-    public static CategoryJson create(String username) {
-        return new CategoryJson(null, randomCategoryName(), username, false);
+    public static CategoryJson create(String username, String name) {
+        CategoryJson category = new CategoryJson(null, randomCategoryName(), username, false);
+        return name.isEmpty()
+                ? category
+                : category.setName(name);
     }
 }
