@@ -1,4 +1,4 @@
-package guru.qa.niffler.data.user;
+package guru.qa.niffler.model.test.user;
 
 import guru.qa.niffler.common.utils.NifflerFaker;
 import guru.qa.niffler.api.rest.AuthApiClient;
@@ -11,10 +11,10 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
-import static guru.qa.niffler.data.user.UserType.EMPTY;
-import static guru.qa.niffler.data.user.UserType.WITH_FRIEND;
-import static guru.qa.niffler.data.user.UserType.WITH_INCOME_REQUEST;
-import static guru.qa.niffler.data.user.UserType.WITH_OUTCOME_REQUEST;
+import static guru.qa.niffler.model.test.user.UserType.EMPTY;
+import static guru.qa.niffler.model.test.user.UserType.WITH_FRIEND;
+import static guru.qa.niffler.model.test.user.UserType.WITH_INCOME_REQUEST;
+import static guru.qa.niffler.model.test.user.UserType.WITH_OUTCOME_REQUEST;
 import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)

@@ -1,6 +1,6 @@
 package guru.qa.niffler.jupiter.annotation;
 
-import guru.qa.niffler.data.user.UserType;
+import guru.qa.niffler.model.test.user.UserType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
