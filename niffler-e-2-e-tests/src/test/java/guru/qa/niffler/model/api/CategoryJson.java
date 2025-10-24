@@ -1,5 +1,6 @@
 package guru.qa.niffler.model.api;
 
+import guru.qa.niffler.model.entity.CategoryEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,5 +27,13 @@ public class CategoryJson {
         return name.isEmpty()
                 ? category
                 : category.setName(name);
+    }
+
+    public static CategoryJson fromEntity(CategoryEntity entity) {
+        return new CategoryJson()
+                .setId(entity.getId())
+                .setName(entity.getName())
+                .setUsername(entity.getUsername())
+                .setArchived(entity.isArchived());
     }
 }

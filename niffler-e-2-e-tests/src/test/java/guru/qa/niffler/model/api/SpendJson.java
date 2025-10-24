@@ -1,6 +1,7 @@
 package guru.qa.niffler.model.api;
 
 import guru.qa.niffler.model.CurrencyValues;
+import guru.qa.niffler.model.entity.SpendEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,8 +10,6 @@ import lombok.experimental.Accessors;
 
 import java.util.Date;
 import java.util.UUID;
-
-import static guru.qa.niffler.model.CurrencyValues.RUB;
 
 @Getter
 @Setter
@@ -26,7 +25,18 @@ public class SpendJson {
     private String description;
     private String username;
 
-    public static SpendJson create(CategoryJson category, Double amount, String description, String username) {
-        return new SpendJson(null, new Date(), category, RUB, amount, description, username);
+    public static SpendJson create(CategoryJson category, Double amount, CurrencyValues currency, String description, String username) {
+        return new SpendJson(null, new Date(), category, currency, amount, description, username);
+    }
+
+    public static SpendJson fromEntity(SpendEntity spendEntity) {
+        return new SpendJson()
+                .setId(spendEntity.getId())
+                .setSpendDate(spendEntity.getSpendDate())
+                .setCategory(CategoryJson.fromEntity(spendEntity.getCategory()))
+                .setCurrency(spendEntity.getCurrency())
+                .setAmount(spendEntity.getAmount())
+                .setDescription(spendEntity.getDescription())
+                .setUsername(spendEntity.getUsername());
     }
 }
