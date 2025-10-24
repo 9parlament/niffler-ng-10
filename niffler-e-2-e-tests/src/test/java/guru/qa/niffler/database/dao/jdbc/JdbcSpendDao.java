@@ -48,7 +48,12 @@ public class JdbcSpendDao implements SpendDao {
     @Override
     public Optional<SpendEntity> findById(UUID id) {
         String selectSql = """
-                SELECT * FROM spend
+                SELECT spend.*,
+                       category.id AS category_table_id,
+                       category.name AS category_table_name,
+                       category.username AS category_table_username,
+                       category.archived AS category_table_archived
+                FROM spend
                 JOIN category ON spend.category_id = category.id
                 WHERE spend.id = ?;
                 """;
@@ -69,7 +74,12 @@ public class JdbcSpendDao implements SpendDao {
     @Override
     public List<SpendEntity> findAllByUsername(String username) {
         String selectSql = """
-                SELECT * FROM spend
+                SELECT spend.*,
+                       category.id AS category_table_id,
+                       category.name AS category_table_name,
+                       category.username AS category_table_username,
+                       category.archived AS category_table_archived
+                FROM spend
                 JOIN category ON spend.category_id = category.id
                 WHERE spend.username = ?;
                 """;
@@ -105,14 +115,14 @@ public class JdbcSpendDao implements SpendDao {
 
     private SpendEntity mapRowToSpend(ResultSet resultSet) throws SQLException {
         CategoryEntity category = new CategoryEntity()
-                .setId(resultSet.getObject("category.id", UUID.class))
-                .setName(resultSet.getString("name"))
-                .setUsername(resultSet.getString("category.username"))
-                .setArchived(resultSet.getBoolean("archived"));
+                .setId(resultSet.getObject("category_table_id", UUID.class))
+                .setName(resultSet.getString("category_table_name"))
+                .setUsername(resultSet.getString("category_table_username"))
+                .setArchived(resultSet.getBoolean("category_table_archived"));
 
         return new SpendEntity()
-                .setId(resultSet.getObject("spend.id", UUID.class))
-                .setUsername(resultSet.getString("spend.username"))
+                .setId(resultSet.getObject("id", UUID.class))
+                .setUsername(resultSet.getString("username"))
                 .setSpendDate(resultSet.getDate("spend_date"))
                 .setCurrency(valueOf(resultSet.getString("currency")))
                 .setAmount(resultSet.getDouble("amount"))
