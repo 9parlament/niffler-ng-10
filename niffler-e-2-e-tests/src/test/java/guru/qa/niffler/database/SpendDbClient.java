@@ -28,4 +28,17 @@ public class SpendDbClient {
         CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
         return categoryDao.save(categoryEntity);
     }
+
+    public void deleteSpend(SpendJson spend) {
+        spendDao.deleteById(spend.getId());
+    }
+
+    public void deleteCategory(CategoryJson category) {
+        if (Objects.isNull(category.getId())) {
+            categoryDao.findByUsernameAndCategoryName(category.getUsername(), category.getName())
+                    .ifPresent(cat -> categoryDao.deleteById(cat.getId()));
+        } else {
+            categoryDao.deleteById(category.getId());
+        }
+    }
 }

@@ -1,10 +1,11 @@
 package guru.qa.niffler.jupiter.extension;
 
+import guru.qa.niffler.database.SpendDbClient;
 import guru.qa.niffler.jupiter.annotation.Spending;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.api.CategoryJson;
 import guru.qa.niffler.model.api.SpendJson;
-import guru.qa.niffler.api.rest.SpendApiClient;
+import guru.qa.niffler.model.entity.SpendEntity;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -14,26 +15,22 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 
-import java.util.List;
 import java.util.Objects;
 
-import static guru.qa.niffler.common.utils.NifflerFaker.randomCategoryName;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 
 public class SpendingExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
     public static final Namespace NAMESPACE = Namespace.create(SpendingExtension.class);
-    private final SpendApiClient spendClient = new SpendApiClient();
+    private final SpendDbClient spendClient = new SpendDbClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
                 .ifPresent(ann -> {
                             if (isNotEmpty(ann.spending())) {
-                                Spending spending = ann.spending()[0];
-                                CategoryJson category = CategoryJson.create(ann.user().getUsername(), spending.category());
-                                var reqBody = SpendJson.create(category, spending.amount(), spending.description(), ann.user().getUsername());
-                                SpendJson createdS = spendClient.createSpend(reqBody);
-                                context.getStore(NAMESPACE).put(context.getUniqueId(), createdS);
+                                Spending spendingA = ann.spending()[0];
+                                SpendWithCategory createdSpend = createSpendByAnnotation(spendingA, ann.user().getUsername());
+                                context.getStore(NAMESPACE).put(context.getUniqueId(), createdSpend);
                             }
                         }
                 );
@@ -41,11 +38,10 @@ public class SpendingExtension implements BeforeEachCallback, AfterEachCallback,
 
     @Override
     public void afterEach(ExtensionContext context) {
-        SpendJson storedSpending = context.getStore(NAMESPACE).get(context.getUniqueId(), SpendJson.class);
-        if (Objects.nonNull(storedSpending)) {
-            //TODO: после реализовать удаления из БД... ох уж этот подход...
-            spendClient.updateCategory(storedSpending.getCategory().setName(randomCategoryName()).setArchived(true));
-            spendClient.removeSpend(List.of(storedSpending.getId().toString()), storedSpending.getUsername());
+        SpendWithCategory storedSpend = context.getStore(NAMESPACE).get(context.getUniqueId(), SpendWithCategory.class);
+        if (Objects.nonNull(storedSpend)) {
+            spendClient.deleteSpend(storedSpend.spend());
+            spendClient.deleteCategory(storedSpend.category());
         }
     }
 
@@ -56,6 +52,15 @@ public class SpendingExtension implements BeforeEachCallback, AfterEachCallback,
 
     @Override
     public SpendJson resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return extensionContext.getStore(NAMESPACE).get(extensionContext.getUniqueId(), SpendJson.class);
+        return extensionContext.getStore(NAMESPACE).get(extensionContext.getUniqueId(), SpendWithCategory.class).spend();
     }
+
+    private SpendWithCategory createSpendByAnnotation(Spending spendingAnn, String username) {
+        CategoryJson category = CategoryJson.create(username, spendingAnn.category());
+        SpendJson spend = SpendJson.create(category, spendingAnn.amount(), spendingAnn.currency(), spendingAnn.description(),username);
+        SpendEntity createdSpend = spendClient.createSpend(spend);
+        return new SpendWithCategory(SpendJson.fromEntity(createdSpend), category);
+    }
+
+    private record SpendWithCategory(SpendJson spend, CategoryJson category) {}
 }
