@@ -20,7 +20,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
     @Override
     public UserEntity save(UserEntity user) {
         String insertSql = """
-                INSERT INTO user (username, currency, firstname, surname, photo, photo_small, full_name)
+                INSERT INTO "user" (username, currency, firstname, surname, photo, photo_small, full_name)
                 VALUES (?, ?, ?, ?, ?, ?, ?);
                 """;
         try (Connection connection = DriverManager.getConnection(USERDATA_DB_URL);
@@ -46,7 +46,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
 
     @Override
     public Optional<UserEntity> findById(UUID id) {
-        String selectSql = "SELECT * from user WHERE id = ?";
+        String selectSql = "SELECT * from \"user\" WHERE id = ?";
         try (Connection connection = DriverManager.getConnection(USERDATA_DB_URL);
              PreparedStatement statement = connection.prepareStatement(selectSql)
         ) {
@@ -63,7 +63,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
 
     @Override
     public Optional<UserEntity> findByUsername(String username) {
-        String selectSql = "SELECT * from user WHERE username = ?";
+        String selectSql = "SELECT * from \"user\" WHERE username = ?";
         try (Connection connection = DriverManager.getConnection(USERDATA_DB_URL);
              PreparedStatement statement = connection.prepareStatement(selectSql)
         ) {
@@ -80,7 +80,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
 
     @Override
     public void deleteById(UUID id) {
-        String deleteSql = "DELETE FROM user WHERE id = ?";
+        String deleteSql = "DELETE FROM \"user\" WHERE id = ?";
         try (Connection connection = DriverManager.getConnection(USERDATA_DB_URL);
              PreparedStatement statement = connection.prepareStatement(deleteSql)
         ) {
