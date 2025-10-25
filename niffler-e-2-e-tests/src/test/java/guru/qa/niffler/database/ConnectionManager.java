@@ -7,27 +7,28 @@ import lombok.SneakyThrows;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
-public class ConnectionManager {
+class ConnectionManager {
     private static final Map<Database, DataSource> DATASOURCE_STORE = new ConcurrentHashMap<>();
     private static final Map<Long, Map<Database, Connection>> THREADED_CONN_POOL = new ConcurrentHashMap<>();
 
-    public static Connection getConnection(Database database) {
+    static Connection getConnection(Database database) {
         return THREADED_CONN_POOL.computeIfAbsent(
                 Thread.currentThread().threadId(),
-                key -> Map.of(database, createConnectionTo(database))
+                key -> new HashMap<>(Map.of(database, createConnectionTo(database)))
         ).computeIfAbsent(
                 database,
                 key -> createConnectionTo(database)
         );
     }
 
-    public static void closeAllConnections() {
+    static void closeAllConnections() {
         THREADED_CONN_POOL.values().stream()
                 .flatMap(db -> db.values().stream())
                 .forEach(ConnectionManager::closeSilently);

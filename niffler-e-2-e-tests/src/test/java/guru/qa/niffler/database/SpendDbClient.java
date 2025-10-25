@@ -9,7 +9,8 @@ import guru.qa.niffler.model.entity.SpendEntity;
 
 import java.util.Objects;
 
-import static guru.qa.niffler.database.DatabaseUtil.runInTransaction;
+import static guru.qa.niffler.database.TransactionManager.executeInTransaction;
+
 
 public class SpendDbClient {
 
@@ -17,12 +18,12 @@ public class SpendDbClient {
         SpendEntity spendEntity = SpendEntity.fromJson(spend);
         CategoryEntity categoryEntity = spendEntity.getCategory();
         return Objects.isNull(categoryEntity.getId())
-                ? runInTransaction(connection -> {
+                ? executeInTransaction(connection -> {
                     new JdbcCategoryDao(connection).save(categoryEntity);
                     return new JdbcSpendDao(connection).save(spendEntity);
                 },
                 Database.SPEND)
-                : runInTransaction(connection -> {
+                : executeInTransaction(connection -> {
                     return new JdbcSpendDao(connection).save(spendEntity);
                 },
                 Database.SPEND);
@@ -30,14 +31,14 @@ public class SpendDbClient {
 
     public CategoryEntity createCategory(CategoryJson category) {
         CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
-        return runInTransaction(connection -> {
+        return executeInTransaction(connection -> {
                     return new JdbcCategoryDao(connection).save(categoryEntity);
                 },
                 Database.SPEND);
     }
 
     public void deleteSpend(SpendJson spend) {
-        runInTransaction(connection -> {
+        executeInTransaction(connection -> {
                     new JdbcSpendDao(connection).deleteById(spend.getId());
                 },
                 Database.SPEND);
@@ -45,14 +46,14 @@ public class SpendDbClient {
 
     public void deleteCategory(CategoryJson category) {
         if (Objects.isNull(category.getId())) {
-            runInTransaction(connection -> {
+            executeInTransaction(connection -> {
                         JdbcCategoryDao categoryDao = new JdbcCategoryDao(connection);
                         categoryDao.findByUsernameAndCategoryName(category.getUsername(), category.getName())
                                 .ifPresent(entity -> categoryDao.deleteById(entity.getId()));
                     },
                     Database.SPEND);
         } else {
-            runInTransaction(connection -> {
+            executeInTransaction(connection -> {
                         new JdbcCategoryDao(connection).deleteById(category.getId());
                     },
                     Database.SPEND);

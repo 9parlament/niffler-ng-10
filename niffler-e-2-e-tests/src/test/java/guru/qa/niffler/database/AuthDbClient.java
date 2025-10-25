@@ -1,7 +1,7 @@
 package guru.qa.niffler.database;
 
-import guru.qa.niffler.database.DatabaseUtil.XaConsumer;
-import guru.qa.niffler.database.DatabaseUtil.XaFunction;
+import guru.qa.niffler.database.TransactionManager.XaConsumer;
+import guru.qa.niffler.database.TransactionManager.XaFunction;
 import guru.qa.niffler.database.dao.jdbc.JdbcAuthUserDao;
 import guru.qa.niffler.database.dao.jdbc.JdbcAuthorityDao;
 import guru.qa.niffler.database.dao.jdbc.JdbcUserdataUserDao;
@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;
 
-import static guru.qa.niffler.database.DatabaseUtil.runInXaTransaction;
+import static guru.qa.niffler.database.TransactionManager.executeInXaTransaction;
 import static guru.qa.niffler.model.entity.AuthorityEntity.readAuthority;
 import static guru.qa.niffler.model.entity.AuthorityEntity.writeAuthority;
 import static org.springframework.security.crypto.factory.PasswordEncoderFactories.createDelegatingPasswordEncoder;
@@ -27,7 +27,7 @@ public class AuthDbClient {
 
         UserEntity user = new UserEntity().setUsername(testUser.getUsername()).setCurrency(CurrencyValues.RUB);
 
-        return (UserEntity) runInXaTransaction(
+        return (UserEntity) executeInXaTransaction(
                 new XaFunction<>(
                         connection -> {
                             AuthUserEntity authUserEntity = new JdbcAuthUserDao(connection).save(authUser);
@@ -45,7 +45,7 @@ public class AuthDbClient {
     }
 
     public void deleteUserById(UUID id) {
-        runInXaTransaction(
+        executeInXaTransaction(
                 new XaConsumer(connection -> {
                             new JdbcAuthorityDao(connection).deleteAllByUserId(id);
                             new JdbcAuthUserDao(connection).deleteById(id);

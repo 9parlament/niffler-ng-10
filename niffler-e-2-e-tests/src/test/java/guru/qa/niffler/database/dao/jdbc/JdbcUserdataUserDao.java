@@ -31,6 +31,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
             statement.setBytes(5, user.getPhoto());
             statement.setBytes(6, user.getPhotoSmall());
             statement.setString(7, user.getFullname());
+            statement.executeUpdate();
 
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
                 resultSet.next();
