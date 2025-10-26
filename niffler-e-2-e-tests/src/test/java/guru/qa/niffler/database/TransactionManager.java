@@ -15,7 +15,7 @@ import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
 class TransactionManager {
-    public static final int PG_DEFAULT_ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
+    static final int PG_DEFAULT_ISOLATION_LEVEL = Connection.TRANSACTION_READ_COMMITTED;
 
     static <T> T executeInTransaction(Function<Connection, T> action, Database database) {
         return runInTransaction(action, database, PG_DEFAULT_ISOLATION_LEVEL);

@@ -14,9 +14,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
-class ConnectionManager {
+public class ConnectionManager {
     private static final Map<Database, DataSource> DATASOURCE_STORE = new ConcurrentHashMap<>();
     private static final Map<Long, Map<Database, Connection>> THREADED_CONN_POOL = new ConcurrentHashMap<>();
+
+    public static void closeAllConnections() {
+        THREADED_CONN_POOL.values().stream()
+                .flatMap(db -> db.values().stream())
+                .forEach(ConnectionManager::closeSilently);
+    }
 
     static Connection getConnection(Database database) {
         return THREADED_CONN_POOL.computeIfAbsent(
@@ -26,12 +32,6 @@ class ConnectionManager {
                 database,
                 key -> createConnectionTo(database)
         );
-    }
-
-    static void closeAllConnections() {
-        THREADED_CONN_POOL.values().stream()
-                .flatMap(db -> db.values().stream())
-                .forEach(ConnectionManager::closeSilently);
     }
 
     @SneakyThrows
