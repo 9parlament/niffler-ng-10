@@ -56,6 +56,14 @@ public class SpringJdbcCategoryDao implements CategoryDao {
     }
 
     @Override
+    public List<CategoryEntity> findAll() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        return jdbcTemplate.query(
+                "SELECT * FROM category",
+                CategoryRowMapper.INSTANCE);
+    }
+
+    @Override
     public List<CategoryEntity> findAllByUsername(String username) {
         String selectSql = "SELECT * FROM category WHERE username = ?";
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);

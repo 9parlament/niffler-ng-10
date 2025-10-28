@@ -67,6 +67,24 @@ public class JdbcCategoryDao implements CategoryDao {
     }
 
     @Override
+    public List<CategoryEntity> findAll() {
+        String selectSql = "SELECT * FROM category";
+        List<CategoryEntity> categories;
+        try (PreparedStatement statement = connection.prepareStatement(selectSql);
+             ResultSet resultSet = statement.executeQuery()
+        ) {
+            categories = new ArrayList<>();
+            while (resultSet.next()) {
+                CategoryEntity category = mapRowToCategory(resultSet);
+                categories.add(category);
+            }
+            return categories;
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при получении списка категорий", e);
+        }
+    }
+
+    @Override
     public List<CategoryEntity> findAllByUsername(String username) {
         String selectSql = "SELECT * FROM category WHERE username = ?";
         List<CategoryEntity> categories;

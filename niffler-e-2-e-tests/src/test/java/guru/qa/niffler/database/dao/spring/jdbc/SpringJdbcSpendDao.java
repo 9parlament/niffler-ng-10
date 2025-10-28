@@ -61,6 +61,24 @@ public class SpringJdbcSpendDao implements SpendDao {
     }
 
     @Override
+    public List<SpendEntity> findAll() {
+        String selectSql = """
+                SELECT spend.*,
+                       category.id AS category_table_id,
+                       category.name AS category_table_name,
+                       category.username AS category_table_username,
+                       category.archived AS category_table_archived
+                FROM spend
+                JOIN category ON spend.category_id = category.id;
+                """;
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        return jdbcTemplate.query(
+                selectSql,
+                SpendRowMapper.INSTANCE
+        );
+    }
+
+    @Override
     public List<SpendEntity> findAllByUsername(String username) {
         String selectSql = """
                 SELECT spend.*,
