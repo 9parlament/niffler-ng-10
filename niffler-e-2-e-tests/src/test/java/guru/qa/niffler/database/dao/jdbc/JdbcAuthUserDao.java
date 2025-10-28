@@ -46,7 +46,7 @@ public class JdbcAuthUserDao implements AuthUserDao {
         String selectSql = "SELECT * FROM \"user\"";
         List<AuthUserEntity> users;
         try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.getResultSet()
+             ResultSet resultSet = statement.executeQuery(selectSql)
         ) {
             users = new ArrayList<>();
             while (resultSet.next()) {

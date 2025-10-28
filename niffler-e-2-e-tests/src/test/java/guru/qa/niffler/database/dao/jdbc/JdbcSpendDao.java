@@ -80,8 +80,8 @@ public class JdbcSpendDao implements SpendDao {
                 JOIN category ON spend.category_id = category.id;
                 """;
         List<SpendEntity> spends;
-        try (PreparedStatement statement = connection.prepareStatement(selectSql);
-             ResultSet resultSet = statement.executeQuery()
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(selectSql)
         ) {
             spends = new ArrayList<>();
             while (resultSet.next()) {

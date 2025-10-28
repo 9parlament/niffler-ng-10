@@ -70,8 +70,8 @@ public class JdbcCategoryDao implements CategoryDao {
     public List<CategoryEntity> findAll() {
         String selectSql = "SELECT * FROM category";
         List<CategoryEntity> categories;
-        try (PreparedStatement statement = connection.prepareStatement(selectSql);
-             ResultSet resultSet = statement.executeQuery()
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(selectSql)
         ) {
             categories = new ArrayList<>();
             while (resultSet.next()) {

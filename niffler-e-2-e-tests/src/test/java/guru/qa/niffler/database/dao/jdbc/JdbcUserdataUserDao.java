@@ -79,8 +79,8 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
     public List<UserEntity> findAll() {
         String selectSql = "SELECT * from \"user\"";
         List<UserEntity> users;
-        try (PreparedStatement statement = connection.prepareStatement(selectSql);
-             ResultSet resultSet = statement.getResultSet()
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(selectSql)
         ) {
             users = new ArrayList<>();
             while (resultSet.next()) {

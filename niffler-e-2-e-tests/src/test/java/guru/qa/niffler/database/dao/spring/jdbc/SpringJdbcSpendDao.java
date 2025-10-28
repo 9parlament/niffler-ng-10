@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,11 +22,11 @@ public class SpringJdbcSpendDao implements SpendDao {
     @Override
     public SpendEntity save(SpendEntity spendEntity) {
         String insertSql = """
-                INSERT INTO spend(username, spend_date, currency, amount, description, category_id) 
+                INSERT INTO spend(username, spend_date, currency, amount, description, category_id)
                 VALUES (?, ?, ?, ?, ?, ?)""";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-                    PreparedStatement statement = con.prepareStatement(insertSql);
+                    PreparedStatement statement = con.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
                     statement.setString(1, spendEntity.getUsername());
                     statement.setDate(2, new Date(spendEntity.getSpendDate().getTime()));
                     statement.setString(3, spendEntity.getCurrency().name());
@@ -51,10 +52,11 @@ public class SpringJdbcSpendDao implements SpendDao {
                 JOIN category ON spend.category_id = category.id
                 WHERE spend.id = ?;
                 """;
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                selectSql,
-                SpendRowMapper.INSTANCE,
-                id));
+        return jdbcTemplate.query(
+                        selectSql,
+                        SpendRowMapper.INSTANCE,
+                        id)
+                .stream().findFirst();
     }
 
     @Override
@@ -94,6 +96,6 @@ public class SpringJdbcSpendDao implements SpendDao {
 
     @Override
     public void deleteById(UUID id) {
-        jdbcTemplate.update("DELETE FROM spend WHERE id = ?");
+        jdbcTemplate.update("DELETE FROM spend WHERE id = ?", id);
     }
 }

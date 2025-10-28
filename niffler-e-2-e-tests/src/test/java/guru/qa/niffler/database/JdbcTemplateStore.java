@@ -9,10 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import static lombok.AccessLevel.PRIVATE;
 
 @NoArgsConstructor(access = PRIVATE)
-class JdbcTemplateStore {
+public class JdbcTemplateStore {
     private static final Map<Database, JdbcTemplate> STORE = new ConcurrentHashMap<>();
 
-    JdbcTemplate getJdbcTemplate(Database database) {
+    static JdbcTemplate getJdbcTemplate(Database database) {
         return STORE.computeIfAbsent(
                 database,
                 db -> new JdbcTemplate(ConnectionManager.getDataSource(db))

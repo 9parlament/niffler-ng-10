@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +23,7 @@ public class SpringJdbcCategoryDao implements CategoryDao {
         String insertSql = "INSERT INTO category(name, username, archived) VALUES (?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-                    PreparedStatement statement = con.prepareStatement(insertSql);
+                    PreparedStatement statement = con.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
                     statement.setString(1, category.getName());
                     statement.setString(2, category.getUsername());
                     statement.setBoolean(3, category.isArchived());
@@ -35,18 +36,20 @@ public class SpringJdbcCategoryDao implements CategoryDao {
 
     @Override
     public Optional<CategoryEntity> findById(UUID id) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT * FROM category WHERE id = ?",
-                CategoryRowMapper.INSTANCE,
-                id));
+        return jdbcTemplate.query(
+                        "SELECT * FROM category WHERE id = ?",
+                        CategoryRowMapper.INSTANCE,
+                        id)
+                .stream().findFirst();
     }
 
     @Override
     public Optional<CategoryEntity> findByUsernameAndCategoryName(String username, String categoryName) {
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT * FROM category WHERE username = ? AND name = ?",
-                CategoryRowMapper.INSTANCE,
-                username, categoryName));
+        return jdbcTemplate.query(
+                        "SELECT * FROM category WHERE username = ? AND name = ?",
+                        CategoryRowMapper.INSTANCE,
+                        username, categoryName)
+                .stream().findFirst();
     }
 
     @Override
@@ -66,6 +69,6 @@ public class SpringJdbcCategoryDao implements CategoryDao {
 
     @Override
     public void deleteById(UUID id) {
-        jdbcTemplate.update("DELETE FROM category WHERE id = ?");
+        jdbcTemplate.update("DELETE FROM category WHERE id = ?", id);
     }
 }

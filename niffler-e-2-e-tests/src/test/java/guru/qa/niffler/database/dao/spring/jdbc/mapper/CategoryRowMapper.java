@@ -20,6 +20,6 @@ public class CategoryRowMapper implements RowMapper<CategoryEntity> {
                 .setId(rs.getObject("id", UUID.class))
                 .setName(rs.getString("name"))
                 .setUsername(rs.getString("username"))
-                .setArchived(rs.getBoolean("is_archived"));
+                .setArchived(rs.getBoolean("archived"));
     }
 }

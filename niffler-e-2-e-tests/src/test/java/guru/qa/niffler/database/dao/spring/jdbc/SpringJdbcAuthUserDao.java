@@ -48,6 +48,6 @@ public class SpringJdbcAuthUserDao implements AuthUserDao {
 
     @Override
     public void deleteById(UUID id) {
-        jdbcTemplate.update("DELETE FROM \"user\" WHERE id = ?");
+        jdbcTemplate.update("DELETE FROM \"user\" WHERE id = ?", id);
     }
 }
