@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import javax.sql.DataSource;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 public class SpringJdbcSpendDao implements SpendDao {
-    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public SpendEntity save(SpendEntity spendEntity) {
@@ -25,7 +24,6 @@ public class SpringJdbcSpendDao implements SpendDao {
                 INSERT INTO spend(username, spend_date, currency, amount, description, category_id) 
                 VALUES (?, ?, ?, ?, ?, ?)""";
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.update(con -> {
                     PreparedStatement statement = con.prepareStatement(insertSql);
                     statement.setString(1, spendEntity.getUsername());
@@ -53,7 +51,6 @@ public class SpringJdbcSpendDao implements SpendDao {
                 JOIN category ON spend.category_id = category.id
                 WHERE spend.id = ?;
                 """;
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return Optional.ofNullable(jdbcTemplate.queryForObject(
                 selectSql,
                 SpendRowMapper.INSTANCE,
@@ -71,7 +68,6 @@ public class SpringJdbcSpendDao implements SpendDao {
                 FROM spend
                 JOIN category ON spend.category_id = category.id;
                 """;
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return jdbcTemplate.query(
                 selectSql,
                 SpendRowMapper.INSTANCE
@@ -90,7 +86,6 @@ public class SpringJdbcSpendDao implements SpendDao {
                 JOIN category ON spend.category_id = category.id
                 WHERE spend.username = ?;
                 """;
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         return jdbcTemplate.query(
                 selectSql,
                 SpendRowMapper.INSTANCE,
@@ -99,8 +94,6 @@ public class SpringJdbcSpendDao implements SpendDao {
 
     @Override
     public void deleteById(UUID id) {
-        String deleteSql = "DELETE FROM spend WHERE id = ?";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.update(deleteSql);
+        jdbcTemplate.update("DELETE FROM spend WHERE id = ?");
     }
 }
