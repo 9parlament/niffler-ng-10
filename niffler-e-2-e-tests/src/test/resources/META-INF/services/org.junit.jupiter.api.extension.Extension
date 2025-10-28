@@ -1,2 +1,3 @@
 guru.qa.niffler.jupiter.extension.DefaultUserCreationExtension
 guru.qa.niffler.jupiter.extension.TestUserCreationExtension
+guru.qa.niffler.jupiter.extension.ConnectionManagerExtension

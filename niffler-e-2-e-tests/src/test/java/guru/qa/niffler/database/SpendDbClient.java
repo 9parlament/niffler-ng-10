@@ -1,7 +1,5 @@
 package guru.qa.niffler.database;
 
-import guru.qa.niffler.database.dao.CategoryDao;
-import guru.qa.niffler.database.dao.SpendDao;
 import guru.qa.niffler.database.dao.jdbc.JdbcCategoryDao;
 import guru.qa.niffler.database.dao.jdbc.JdbcSpendDao;
 import guru.qa.niffler.model.api.CategoryJson;
@@ -11,34 +9,54 @@ import guru.qa.niffler.model.entity.SpendEntity;
 
 import java.util.Objects;
 
+import static guru.qa.niffler.database.TransactionManager.executeInTransaction;
+
+
 public class SpendDbClient {
-    private final SpendDao spendDao = new JdbcSpendDao();
-    private final CategoryDao categoryDao = new JdbcCategoryDao();
 
     public SpendEntity createSpend(SpendJson spend) {
-        final SpendEntity spendEntity = SpendEntity.fromJson(spend);
-        if (Objects.isNull(spendEntity.getCategory().getId())) {
-            CategoryEntity category = categoryDao.save(spendEntity.getCategory());
-            spendEntity.getCategory().setId(category.getId());
-        }
-        return spendDao.save(spendEntity);
+        SpendEntity spendEntity = SpendEntity.fromJson(spend);
+        CategoryEntity categoryEntity = spendEntity.getCategory();
+        return Objects.isNull(categoryEntity.getId())
+                ? executeInTransaction(connection -> {
+                    new JdbcCategoryDao(connection).save(categoryEntity);
+                    return new JdbcSpendDao(connection).save(spendEntity);
+                },
+                Database.SPEND)
+                : executeInTransaction(connection -> {
+                    return new JdbcSpendDao(connection).save(spendEntity);
+                },
+                Database.SPEND);
     }
 
     public CategoryEntity createCategory(CategoryJson category) {
         CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
-        return categoryDao.save(categoryEntity);
+        return executeInTransaction(connection -> {
+                    return new JdbcCategoryDao(connection).save(categoryEntity);
+                },
+                Database.SPEND);
     }
 
     public void deleteSpend(SpendJson spend) {
-        spendDao.deleteById(spend.getId());
+        executeInTransaction(connection -> {
+                    new JdbcSpendDao(connection).deleteById(spend.getId());
+                },
+                Database.SPEND);
     }
 
     public void deleteCategory(CategoryJson category) {
         if (Objects.isNull(category.getId())) {
-            categoryDao.findByUsernameAndCategoryName(category.getUsername(), category.getName())
-                    .ifPresent(cat -> categoryDao.deleteById(cat.getId()));
+            executeInTransaction(connection -> {
+                        JdbcCategoryDao categoryDao = new JdbcCategoryDao(connection);
+                        categoryDao.findByUsernameAndCategoryName(category.getUsername(), category.getName())
+                                .ifPresent(entity -> categoryDao.deleteById(entity.getId()));
+                    },
+                    Database.SPEND);
         } else {
-            categoryDao.deleteById(category.getId());
+            executeInTransaction(connection -> {
+                        new JdbcCategoryDao(connection).deleteById(category.getId());
+                    },
+                    Database.SPEND);
         }
     }
 }

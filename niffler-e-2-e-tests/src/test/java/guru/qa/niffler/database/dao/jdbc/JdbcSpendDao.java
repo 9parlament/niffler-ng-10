@@ -3,10 +3,10 @@ package guru.qa.niffler.database.dao.jdbc;
 import guru.qa.niffler.database.dao.SpendDao;
 import guru.qa.niffler.model.entity.CategoryEntity;
 import guru.qa.niffler.model.entity.SpendEntity;
+import lombok.RequiredArgsConstructor;
 
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,19 +16,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static guru.qa.niffler.database.DatabaseUtil.SPEND_DB_URL;
 import static guru.qa.niffler.model.CurrencyValues.valueOf;
 
+@RequiredArgsConstructor
 public class JdbcSpendDao implements SpendDao {
+    private final Connection connection;
 
     public SpendEntity save(SpendEntity spendEntity) {
         String insertSql = """
                 INSERT INTO spend(username, spend_date, currency, amount, description, category_id) 
                 VALUES (?, ?, ?, ?, ?, ?)""";
-        UUID generatedId = null;
-        try (Connection connection = DriverManager.getConnection(SPEND_DB_URL);
-             PreparedStatement statement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)
-        ) {
+        try (PreparedStatement statement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, spendEntity.getUsername());
             statement.setDate(2, new Date(spendEntity.getSpendDate().getTime()));
             statement.setString(3, spendEntity.getCurrency().name());
@@ -37,12 +35,13 @@ public class JdbcSpendDao implements SpendDao {
             statement.setObject(6, spendEntity.getCategory().getId());
             statement.executeUpdate();
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
-                if (resultSet.next()) generatedId = resultSet.getObject("id", UUID.class);
+                resultSet.next();
+                UUID generatedId = resultSet.getObject("id", UUID.class);
+                return spendEntity.setId(generatedId);
             }
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при сохранении траты", e);
         }
-        return spendEntity.setId(generatedId);
     }
 
     @Override
@@ -57,9 +56,7 @@ public class JdbcSpendDao implements SpendDao {
                 JOIN category ON spend.category_id = category.id
                 WHERE spend.id = ?;
                 """;
-        try (Connection connection = DriverManager.getConnection(SPEND_DB_URL);
-             PreparedStatement statement = connection.prepareStatement(selectSql)
-        ) {
+        try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
             statement.setObject(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next()
@@ -84,8 +81,7 @@ public class JdbcSpendDao implements SpendDao {
                 WHERE spend.username = ?;
                 """;
         List<SpendEntity> spends;
-        try (Connection connection = DriverManager.getConnection(SPEND_DB_URL);
-             PreparedStatement statement = connection.prepareStatement(selectSql)) {
+        try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
             statement.setString(1, username);
             try (ResultSet resultSet = statement.executeQuery()) {
                 spends = new ArrayList<>();
@@ -93,19 +89,17 @@ public class JdbcSpendDao implements SpendDao {
                     SpendEntity spend = mapRowToSpend(resultSet);
                     spends.add(spend);
                 }
+                return spends;
             }
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при получении списка трат", e);
         }
-        return spends;
     }
 
     @Override
     public void deleteById(UUID id) {
         String deleteSql = "DELETE FROM spend WHERE id = ?";
-        try (Connection connection = DriverManager.getConnection(SPEND_DB_URL);
-             PreparedStatement statement = connection.prepareStatement(deleteSql)
-        ) {
+        try (PreparedStatement statement = connection.prepareStatement(deleteSql)) {
             statement.setObject(1, id);
             statement.executeUpdate();
         } catch (SQLException e) {

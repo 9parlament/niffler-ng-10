@@ -3,9 +3,9 @@ package guru.qa.niffler.database.dao.jdbc;
 import guru.qa.niffler.database.dao.UserdataUserDao;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.entity.UserEntity;
+import lombok.RequiredArgsConstructor;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,9 +13,9 @@ import java.sql.Statement;
 import java.util.Optional;
 import java.util.UUID;
 
-import static guru.qa.niffler.database.DatabaseUtil.USERDATA_DB_URL;
-
+@RequiredArgsConstructor
 public class JdbcUserdataUserDao implements UserdataUserDao {
+    private final Connection connection;
 
     @Override
     public UserEntity save(UserEntity user) {
@@ -23,9 +23,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
                 INSERT INTO "user" (username, currency, firstname, surname, photo, photo_small, full_name)
                 VALUES (?, ?, ?, ?, ?, ?, ?);
                 """;
-        try (Connection connection = DriverManager.getConnection(USERDATA_DB_URL);
-             PreparedStatement statement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)
-        ) {
+        try (PreparedStatement statement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getCurrency().name());
             statement.setString(3, user.getFirstname());
@@ -33,6 +31,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
             statement.setBytes(5, user.getPhoto());
             statement.setBytes(6, user.getPhotoSmall());
             statement.setString(7, user.getFullname());
+            statement.executeUpdate();
 
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
                 resultSet.next();
@@ -47,9 +46,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
     @Override
     public Optional<UserEntity> findById(UUID id) {
         String selectSql = "SELECT * from \"user\" WHERE id = ?";
-        try (Connection connection = DriverManager.getConnection(USERDATA_DB_URL);
-             PreparedStatement statement = connection.prepareStatement(selectSql)
-        ) {
+        try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
             statement.setObject(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next()
@@ -64,9 +61,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
     @Override
     public Optional<UserEntity> findByUsername(String username) {
         String selectSql = "SELECT * from \"user\" WHERE username = ?";
-        try (Connection connection = DriverManager.getConnection(USERDATA_DB_URL);
-             PreparedStatement statement = connection.prepareStatement(selectSql)
-        ) {
+        try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
             statement.setString(1, username);
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next()
@@ -81,9 +76,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
     @Override
     public void deleteById(UUID id) {
         String deleteSql = "DELETE FROM \"user\" WHERE id = ?";
-        try (Connection connection = DriverManager.getConnection(USERDATA_DB_URL);
-             PreparedStatement statement = connection.prepareStatement(deleteSql)
-        ) {
+        try (PreparedStatement statement = connection.prepareStatement(deleteSql)) {
             statement.setObject(1, id);
             statement.executeUpdate();
         } catch (SQLException e) {
