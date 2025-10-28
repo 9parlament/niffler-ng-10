@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface SpendDao {
 
-    SpendEntity save(SpendEntity category);
+    SpendEntity save(SpendEntity spendEntity);
 
     Optional<SpendEntity> findById(UUID id);
 
