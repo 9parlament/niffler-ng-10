@@ -3,12 +3,15 @@ package guru.qa.niffler.database.dao.jdbc;
 import guru.qa.niffler.database.dao.AuthUserDao;
 import guru.qa.niffler.model.entity.AuthUserEntity;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -39,6 +42,24 @@ public class JdbcAuthUserDao implements AuthUserDao {
     }
 
     @Override
+    public List<AuthUserEntity> findAll() {
+        String selectSql = "SELECT * FROM \"user\"";
+        List<AuthUserEntity> users;
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.getResultSet()
+        ) {
+            users = new ArrayList<>();
+            while (resultSet.next()) {
+                AuthUserEntity user = mapRowToUser(resultSet);
+                users.add(user);
+            }
+            return users;
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при получении списка пользователей", e);
+        }
+    }
+
+    @Override
     public void deleteById(UUID id) {
         String deleteSql = "DELETE FROM \"user\" WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(deleteSql)) {
@@ -47,5 +68,18 @@ public class JdbcAuthUserDao implements AuthUserDao {
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при удалении пользователя");
         }
+    }
+
+    @SneakyThrows
+    private AuthUserEntity mapRowToUser(ResultSet resultSet) {
+        return new AuthUserEntity()
+                .setId(resultSet.getObject("id", UUID.class))
+                .setUsername(resultSet.getString("username"))
+                .setPassword(resultSet.getString("password"))
+                .setEnabled(resultSet.getBoolean("enabled"))
+                .setAccountNotExpired(resultSet.getBoolean("account_non_expired"))
+                .setAccountNonLocked(resultSet.getBoolean("account_non_locked"))
+                .setCredentialsNonExpired(resultSet.getBoolean("credentials_non_expired"));
+
     }
 }

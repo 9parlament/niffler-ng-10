@@ -1,6 +1,7 @@
 package guru.qa.niffler.database.dao.spring.jdbc;
 
 import guru.qa.niffler.database.dao.AuthUserDao;
+import guru.qa.niffler.database.dao.spring.jdbc.mapper.AuthUserRowMapper;
 import guru.qa.niffler.model.entity.AuthUserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,6 +11,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -37,6 +39,14 @@ public class SpringJdbcAuthUserDao implements AuthUserDao {
                 keyHolder);
         UUID generatedKey = (UUID) keyHolder.getKeys().get("id");
         return userEntity.setId(generatedKey);
+    }
+
+    @Override
+    public List<AuthUserEntity> findAll() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        return jdbcTemplate.query(
+                "SELECT * FROM \"user\"",
+                AuthUserRowMapper.INSTANCE);
     }
 
     @Override
