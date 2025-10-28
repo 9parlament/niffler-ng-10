@@ -10,6 +10,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,6 +72,24 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при получении данных пользователя");
+        }
+    }
+
+    @Override
+    public List<UserEntity> findAll() {
+        String selectSql = "SELECT * from \"user\"";
+        List<UserEntity> users;
+        try (PreparedStatement statement = connection.prepareStatement(selectSql);
+             ResultSet resultSet = statement.getResultSet()
+        ) {
+            users = new ArrayList<>();
+            while (resultSet.next()) {
+                UserEntity user = mapRowToUser(resultSet);
+                users.add(user);
+            }
+            return users;
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при получении списка пользователей", e);
         }
     }
 
