@@ -21,7 +21,7 @@ public class JdbcAuthorityDao implements AuthorityDao {
                 """;
         try (PreparedStatement statement = connection.prepareStatement(insertSql)) {
             for (AuthorityEntity authority : authorities) {
-                statement.setObject(1, authority.getUserId());
+                statement.setObject(1, authority.getAuthUser().getId());
                 statement.setString(2, authority.getAuthority());
                 statement.addBatch();
             }
