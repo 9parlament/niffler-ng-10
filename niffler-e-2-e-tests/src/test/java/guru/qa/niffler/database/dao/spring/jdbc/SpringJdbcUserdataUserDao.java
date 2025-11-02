@@ -8,14 +8,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 public class SpringJdbcUserdataUserDao implements UserdataUserDao {
-    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public UserEntity save(UserEntity user) {
@@ -24,9 +25,8 @@ public class SpringJdbcUserdataUserDao implements UserdataUserDao {
                 VALUES (?, ?, ?, ?, ?, ?, ?);
                 """;
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.update(con -> {
-                    PreparedStatement statement = con.prepareStatement(insertSql);
+                    PreparedStatement statement = con.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
                     statement.setString(1, user.getUsername());
                     statement.setString(2, user.getCurrency().name());
                     statement.setString(3, user.getFirstname());
@@ -44,26 +44,32 @@ public class SpringJdbcUserdataUserDao implements UserdataUserDao {
 
     @Override
     public Optional<UserEntity> findById(UUID id) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT FROM \"user\" WHERE id = ?",
-                UserdataUserRowMapper.INSTANCE,
-                id));
+        return jdbcTemplate.query(
+                        "SELECT *FROM \"user\" WHERE id = ?",
+                        UserdataUserRowMapper.INSTANCE,
+                        id)
+                .stream().findFirst();
     }
 
     @Override
     public Optional<UserEntity> findByUsername(String username) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        return Optional.ofNullable(jdbcTemplate.queryForObject(
-                "SELECT FROM \"user\" WHERE username = ?",
-                UserdataUserRowMapper.INSTANCE,
-                username));
+        return jdbcTemplate.query(
+                        "SELECT * FROM \"user\" WHERE username = ?",
+                        UserdataUserRowMapper.INSTANCE,
+                        username)
+                .stream().findFirst();
+    }
+
+    @Override
+    public List<UserEntity> findAll() {
+        return jdbcTemplate.query(
+                "SELECT * FROM \"user\"",
+                UserdataUserRowMapper.INSTANCE
+        );
     }
 
     @Override
     public void deleteById(UUID id) {
-        String deleteSql = "DELETE FROM \"user\" WHERE id = ?";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.update(deleteSql);
+        jdbcTemplate.update("DELETE FROM \"user\" WHERE id = ?", id);
     }
 }

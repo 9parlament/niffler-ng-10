@@ -6,19 +6,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 public class SpringJdbcAuthorityDao implements AuthorityDao {
-    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void saveAll(AuthorityEntity... authority) {
         String insertSql = "INSERT INTO authority(user_id, authority) VALUES (?, ?)";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         jdbcTemplate.batchUpdate(insertSql,
                 new BatchPreparedStatementSetter() {
                     @Override
@@ -36,8 +34,6 @@ public class SpringJdbcAuthorityDao implements AuthorityDao {
 
     @Override
     public void deleteAllByUserId(UUID id) {
-        String deleteSql = "DELETE FROM authority WHERE user_id = ?";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.update(deleteSql, id);
+        jdbcTemplate.update("DELETE FROM authority WHERE user_id = ?", id);
     }
 }
