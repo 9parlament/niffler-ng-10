@@ -34,9 +34,8 @@ public class ConnectionManager {
         );
     }
 
-    @SneakyThrows
-    private static Connection createConnectionTo(Database database) {
-        DataSource dataSource = DATASOURCE_STORE.computeIfAbsent(
+    static DataSource getDataSource(Database database) {
+        return DATASOURCE_STORE.computeIfAbsent(
                 database,
                 db -> {
                     AtomikosDataSourceBean dsBean = new AtomikosDataSourceBean();
@@ -45,6 +44,14 @@ public class ConnectionManager {
                     dsBean.getXaProperties().put("URL", database.connectionUrl());
                     return dsBean;
                 }
+        );
+    }
+
+    @SneakyThrows
+    private static Connection createConnectionTo(Database database) {
+        DataSource dataSource = DATASOURCE_STORE.computeIfAbsent(
+                database,
+                db -> getDataSource(database)
         );
         return dataSource.getConnection();
     }
