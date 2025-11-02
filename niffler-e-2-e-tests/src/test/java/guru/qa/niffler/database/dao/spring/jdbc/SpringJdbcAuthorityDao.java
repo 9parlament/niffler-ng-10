@@ -21,7 +21,7 @@ public class SpringJdbcAuthorityDao implements AuthorityDao {
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setObject(1, authority[i].getUserId());
+                        ps.setObject(1, authority[i].getAuthUser().getId());
                         ps.setObject(2, authority[i].getAuthority());
                     }
 
