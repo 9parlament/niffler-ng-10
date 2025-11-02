@@ -49,11 +49,7 @@ public class ConnectionManager {
 
     @SneakyThrows
     private static Connection createConnectionTo(Database database) {
-        DataSource dataSource = DATASOURCE_STORE.computeIfAbsent(
-                database,
-                db -> getDataSource(database)
-        );
-        return dataSource.getConnection();
+        return getDataSource(database).getConnection();
     }
 
     private static void closeSilently(Connection connection) {
