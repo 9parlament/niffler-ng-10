@@ -52,6 +52,7 @@ public class FriendshipEntity {
                 .setStatus(FriendshipState.PENDING);
     }
 
+    //TODO: Уточнить реализацию (во всех сущностях) после конфигурирования и взаимодействия с JPA
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
