@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class AuthUserSpringJdbcRepository implements AuthUserRepository {
+public class SpringJdbcAuthUserRepository implements AuthUserRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override

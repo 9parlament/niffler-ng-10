@@ -4,11 +4,14 @@ import guru.qa.niffler.model.CurrencyValues;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -27,4 +30,8 @@ public class UserEntity {
     private CurrencyValues currency;
     private byte[] photo;
     private byte[] photoSmall;
+    @OneToMany(mappedBy = "requesterId")
+    private List<FriendshipEntity> requests = new ArrayList<>();
+    @OneToMany(mappedBy = "addresseeId")
+    private List<FriendshipEntity> addressees = new ArrayList<>();
 }

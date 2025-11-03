@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class AuthUserJdbcRepository implements AuthUserRepository {
+public class JdbcAuthUserRepository implements AuthUserRepository {
     private final Connection connection;
 
     @Override
@@ -49,6 +49,7 @@ public class AuthUserJdbcRepository implements AuthUserRepository {
                 authorityStmnt.setObject(1, authority.getAuthUser().getId());
                 authorityStmnt.setString(2, authority.getAuthority());
                 authorityStmnt.addBatch();
+                authorityStmnt.clearParameters();
             }
             authorityStmnt.executeBatch();
         } catch (SQLException e) {
