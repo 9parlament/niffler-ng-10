@@ -69,4 +69,23 @@ public class AuthUserSpringJdbcRepository implements AuthUserRepository {
                 """;
         return Optional.ofNullable(jdbcTemplate.query(selectSql, AuthUserRowExtractor.INSTANCE, id));
     }
+
+    @Override
+    public Optional<AuthUserEntity> findByUsername(String username) {
+        String selectSql = """
+                SELECT u.*,
+                a.id AS authority_id,
+                a.authority AS authority_authority
+                FROM "user" u
+                JOIN authority a ON u.id = a.user_id
+                WHERE u.username = ?;
+                """;
+        return Optional.ofNullable(jdbcTemplate.query(selectSql, AuthUserRowExtractor.INSTANCE, username));
+    }
+
+    @Override
+    public void delete(AuthUserEntity user) {
+        jdbcTemplate.update("DELETE FROM authority WHERE user_id = ?", user.getId());
+        jdbcTemplate.update("DELETE FROM \"user\" WHERE id = ?", user.getId());
+    }
 }

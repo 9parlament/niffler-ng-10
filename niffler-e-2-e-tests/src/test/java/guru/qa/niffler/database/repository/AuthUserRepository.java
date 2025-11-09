@@ -10,4 +10,8 @@ public interface AuthUserRepository {
     AuthUserEntity save(AuthUserEntity user);
 
     Optional<AuthUserEntity> findById(UUID id);
+
+    Optional<AuthUserEntity> findByUsername(String username);
+
+    void delete(AuthUserEntity user);
 }
