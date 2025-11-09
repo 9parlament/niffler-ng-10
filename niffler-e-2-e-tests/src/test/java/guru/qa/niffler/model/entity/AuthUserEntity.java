@@ -1,6 +1,6 @@
 package guru.qa.niffler.model.entity;
 
-import guru.qa.niffler.model.test.user.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -17,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "USER")
+@Table(name = "\"user\"")
 @Accessors(chain = true)
 public class AuthUserEntity {
     @Id
@@ -26,18 +26,18 @@ public class AuthUserEntity {
     private String username;
     private String password;
     private Boolean enabled;
-    private Boolean accountNotExpired;
+    private Boolean accountNonExpired;
     private Boolean accountNonLocked;
     private Boolean credentialsNonExpired;
-    @OneToMany(mappedBy = "userId")
+    @OneToMany(mappedBy = "authUser", cascade = CascadeType.ALL)
     private List<AuthorityEntity> authorities;
 
-    public static AuthUserEntity fromTestUser(User user) {
+    public static AuthUserEntity create(String username, String password) {
         return new AuthUserEntity()
-                .setUsername(user.getUsername())
-                .setPassword(user.getPassword())
+                .setUsername(username)
+                .setPassword(password)
                 .setEnabled(true)
-                .setAccountNotExpired(true)
+                .setAccountNonExpired(true)
                 .setAccountNonLocked(true)
                 .setCredentialsNonExpired(true)
                 .setAuthorities(new ArrayList<>());

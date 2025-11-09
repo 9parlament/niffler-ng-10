@@ -32,7 +32,7 @@ public class UserdataUserRowExtractor implements ResultSetExtractor<Map<UUID, Us
                 UserEntity user = new UserEntity()
                         .setId(userId)
                         .setUsername(rs.getString("username"))
-                        .setFullname(rs.getString("full_name"))
+                        .setFullName(rs.getString("full_name"))
                         .setSurname(rs.getString("surname"))
                         .setFirstname(rs.getString("firstname"))
                         .setCurrency(CurrencyValues.valueOf(rs.getString("currency")))
@@ -51,12 +51,12 @@ public class UserdataUserRowExtractor implements ResultSetExtractor<Map<UUID, Us
         }
 
         userFriendshipStore.forEach(friendshipEntity -> {
-            UUID requesterId = friendshipEntity.getFriendShipId().requesterId();
+            UUID requesterId = friendshipEntity.getFriendShipId().requester();
             UserEntity requester = userStore.get(requesterId);
             friendshipEntity.setRequester(requester);
             requester.getRequests().add(friendshipEntity);
 
-            UUID addresseeId = friendshipEntity.getFriendShipId().addresseeId();
+            UUID addresseeId = friendshipEntity.getFriendShipId().addressee();
             UserEntity addressee = userStore.get(addresseeId);
             friendshipEntity.setAddressee(addressee);
             addressee.getAddressees().add(friendshipEntity);

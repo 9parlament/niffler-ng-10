@@ -32,7 +32,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
             statement.setString(4, user.getSurname());
             statement.setBytes(5, user.getPhoto());
             statement.setBytes(6, user.getPhotoSmall());
-            statement.setString(7, user.getFullname());
+            statement.setString(7, user.getFullName());
             statement.executeUpdate();
 
             try (ResultSet resultSet = statement.getGeneratedKeys()) {
@@ -108,7 +108,7 @@ public class JdbcUserdataUserDao implements UserdataUserDao {
         return new UserEntity()
                 .setId(resultSet.getObject("id", UUID.class))
                 .setUsername(resultSet.getString("username"))
-                .setFullname(resultSet.getString("full_name"))
+                .setFullName(resultSet.getString("full_name"))
                 .setSurname(resultSet.getString("surname"))
                 .setFirstname(resultSet.getString("firstname"))
                 .setCurrency(CurrencyValues.valueOf(resultSet.getString("currency")))

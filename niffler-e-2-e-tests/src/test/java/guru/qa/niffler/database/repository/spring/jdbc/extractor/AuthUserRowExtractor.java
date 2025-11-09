@@ -33,7 +33,7 @@ public class AuthUserRowExtractor implements ResultSetExtractor<AuthUserEntity> 
                                 .setUsername(rs.getString("username"))
                                 .setPassword(rs.getString("password"))
                                 .setEnabled(rs.getBoolean("enabled"))
-                                .setAccountNotExpired(rs.getBoolean("account_non_expired"))
+                                .setAccountNonExpired(rs.getBoolean("account_non_expired"))
                                 .setAccountNonLocked(rs.getBoolean("account_non_locked"))
                                 .setCredentialsNonExpired(rs.getBoolean("credentials_non_expired"))
                                 .setAuthorities(new ArrayList<>()));

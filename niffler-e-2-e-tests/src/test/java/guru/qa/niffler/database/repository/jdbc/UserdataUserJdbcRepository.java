@@ -115,7 +115,7 @@ public class JdbcUserdataUserRepository implements UserdataUserRepository {
                         UserEntity user = new UserEntity()
                                 .setId(userId)
                                 .setUsername(resultSet.getString("username"))
-                                .setFullname(resultSet.getString("full_name"))
+                                .setFullName(resultSet.getString("full_name"))
                                 .setSurname(resultSet.getString("surname"))
                                 .setFirstname(resultSet.getString("firstname"))
                                 .setCurrency(CurrencyValues.valueOf(resultSet.getString("currency")))
@@ -126,7 +126,7 @@ public class JdbcUserdataUserRepository implements UserdataUserRepository {
 
                     if (userId.equals(id)) {
                         FriendshipEntity userFriendship = new FriendshipEntity()
-                                .setFriendShipId(new FriendshipId(
+                                .setFriendShipId(new FriendshipEntity.FriendshipId(
                                         resultSet.getObject("requester_id", UUID.class),
                                         resultSet.getObject("addressee_id", UUID.class)))
                                 .setStatus(FriendshipState.valueOf(
@@ -136,12 +136,12 @@ public class JdbcUserdataUserRepository implements UserdataUserRepository {
                 }
 
                 userFriendshipStore.forEach(friendshipEntity -> {
-                    UUID requesterId = friendshipEntity.getFriendShipId().requesterId();
+                    UUID requesterId = friendshipEntity.getFriendShipId().requester();
                     UserEntity requester = userStore.get(requesterId);
                     friendshipEntity.setRequester(requester);
                     requester.getRequests().add(friendshipEntity);
 
-                    UUID addresseeId = friendshipEntity.getFriendShipId().addresseeId();
+                    UUID addresseeId = friendshipEntity.getFriendShipId().addressee();
                     UserEntity addressee = userStore.get(addresseeId);
                     friendshipEntity.setAddressee(addressee);
                     addressee.getAddressees().add(friendshipEntity);

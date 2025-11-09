@@ -28,7 +28,7 @@ public class JdbcAuthUserDao implements AuthUserDao {
             statement.setString(1, userEntity.getUsername());
             statement.setString(2, userEntity.getPassword());
             statement.setBoolean(3, userEntity.getEnabled());
-            statement.setBoolean(4, userEntity.getAccountNotExpired());
+            statement.setBoolean(4, userEntity.getAccountNonExpired());
             statement.setBoolean(5, userEntity.getAccountNonLocked());
             statement.setBoolean(6, userEntity.getCredentialsNonExpired());
             statement.executeUpdate();
@@ -77,7 +77,7 @@ public class JdbcAuthUserDao implements AuthUserDao {
                 .setUsername(resultSet.getString("username"))
                 .setPassword(resultSet.getString("password"))
                 .setEnabled(resultSet.getBoolean("enabled"))
-                .setAccountNotExpired(resultSet.getBoolean("account_non_expired"))
+                .setAccountNonExpired(resultSet.getBoolean("account_non_expired"))
                 .setAccountNonLocked(resultSet.getBoolean("account_non_locked"))
                 .setCredentialsNonExpired(resultSet.getBoolean("credentials_non_expired"));
 

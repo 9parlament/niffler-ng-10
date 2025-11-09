@@ -3,8 +3,10 @@ package guru.qa.niffler.model.entity;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.api.SpendJson;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -13,6 +15,8 @@ import lombok.experimental.Accessors;
 
 import java.util.Date;
 import java.util.UUID;
+
+import static jakarta.persistence.EnumType.STRING;
 
 @Getter
 @Setter
@@ -25,10 +29,12 @@ public class SpendEntity {
     private UUID id;
     private String username;
     private Date spendDate;
+    @Enumerated(STRING)
     private CurrencyValues currency;
     private Double amount;
     private String description;
     @ManyToOne
+    @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
     public static SpendEntity fromJson(SpendJson spendJson) {

@@ -36,7 +36,7 @@ public class JdbcAuthUserRepository implements AuthUserRepository {
             userStmnt.setString(1, user.getUsername());
             userStmnt.setString(2, user.getPassword());
             userStmnt.setBoolean(3, user.getEnabled());
-            userStmnt.setBoolean(4, user.getAccountNotExpired());
+            userStmnt.setBoolean(4, user.getAccountNonExpired());
             userStmnt.setBoolean(5, user.getAccountNonLocked());
             userStmnt.setBoolean(6, user.getCredentialsNonExpired());
             userStmnt.executeUpdate();
@@ -90,7 +90,7 @@ public class JdbcAuthUserRepository implements AuthUserRepository {
                     .setUsername(resultSet.getString("username"))
                     .setPassword(resultSet.getString("password"))
                     .setEnabled(resultSet.getBoolean("enabled"))
-                    .setAccountNotExpired(resultSet.getBoolean("account_non_expired"))
+                    .setAccountNonExpired(resultSet.getBoolean("account_non_expired"))
                     .setAccountNonLocked(resultSet.getBoolean("account_non_locked"))
                     .setCredentialsNonExpired(resultSet.getBoolean("credentials_non_expired"))
                     .setAuthorities(new ArrayList<>());
