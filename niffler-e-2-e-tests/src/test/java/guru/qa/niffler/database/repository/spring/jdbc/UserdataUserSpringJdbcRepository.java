@@ -18,66 +18,33 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
-public class SpringJdbcUserdataUserRepository implements UserdataUserRepository {
+public class UserdataUserSpringJdbcRepository implements UserdataUserRepository {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public UserEntity create(UserEntity user) {
-        String userInsertSql = """
+        String insertSql = """
                 INSERT INTO "user" (username, currency, firstname, surname, photo, photo_small, full_name)
                 VALUES (?, ?, ?, ?, ?, ?, ?);
                 """;
-        String friendshipInsertSql = """
-                INSERT INTO friendship(requester_id, addressee_id, status)
-                VALUES (?, ?, ?)
-                """;
-        Stream.of(
-                        Stream.of(user),
-                        user.getRequests().stream().map(FriendshipEntity::getAddressee),
-                        user.getAddressees().stream().map(FriendshipEntity::getRequester)
-                )
-                .flatMap(Function.identity())
-                .collect(Collectors.toSet())
-                .forEach(userEntity -> {
-                    KeyHolder keyHolder = new GeneratedKeyHolder();
-                    jdbcTemplate.update(con -> {
-                                PreparedStatement statement = con.prepareStatement(userInsertSql, Statement.RETURN_GENERATED_KEYS);
-                                statement.setString(1, userEntity.getUsername());
-                                statement.setString(2, userEntity.getCurrency().name());
-                                statement.setString(3, userEntity.getFirstname());
-                                statement.setString(4, userEntity.getSurname());
-                                statement.setBytes(5, userEntity.getPhoto());
-                                statement.setBytes(6, userEntity.getPhotoSmall());
-                                statement.setString(7, userEntity.getFullname());
-                                return statement;
-                            },
-                            keyHolder
-                    );
-                    UUID generatedId = (UUID) keyHolder.getKeys().get("id");
-                    userEntity.setId(generatedId);
-                });
-        Stream.concat(
-                        user.getRequests().stream(),
-                        user.getAddressees().stream()
-                )
-                .collect(Collectors.toSet())
-                .forEach(friendshipEntity -> {
-                            jdbcTemplate.update(con -> {
-                                        PreparedStatement statement = con.prepareStatement(friendshipInsertSql);
-                                        statement.setObject(1, friendshipEntity.getRequester().getId());
-                                        statement.setObject(2, friendshipEntity.getAddressee().getId());
-                                        statement.setString(3, friendshipEntity.getStatus().name());
-                                        return statement;
-                                    }
-                            );
-                        }
-                );
-        return user;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(con -> {
+                    PreparedStatement statement = con.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
+                    statement.setString(1, user.getUsername());
+                    statement.setString(2, user.getCurrency().name());
+                    statement.setString(3, user.getFirstname());
+                    statement.setString(4, user.getSurname());
+                    statement.setBytes(5, user.getPhoto());
+                    statement.setBytes(6, user.getPhotoSmall());
+                    statement.setString(7, user.getFullName());
+                    return statement;
+                },
+                keyHolder
+        );
+        UUID generatedId = (UUID) keyHolder.getKeys().get("id");
+        return user.setId(generatedId);
     }
 
     @Override

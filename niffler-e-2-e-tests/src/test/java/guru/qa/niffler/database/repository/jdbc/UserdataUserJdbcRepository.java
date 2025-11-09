@@ -20,9 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class JdbcUserdataUserRepository implements UserdataUserRepository {
@@ -30,67 +27,28 @@ public class JdbcUserdataUserRepository implements UserdataUserRepository {
 
     @Override
     public UserEntity create(UserEntity user) {
-        String userInsertSql = """
+        String insertSql = """
                 INSERT INTO "user" (username, currency, firstname, surname, photo, photo_small, full_name)
                 VALUES (?, ?, ?, ?, ?, ?, ?);
                 """;
-        String friendshipInsertSql = """
-                INSERT INTO friendship(requester_id, addressee_id, status)
-                VALUES (?, ?, ?)
-                """;
-        try (PreparedStatement userStatement = connection.prepareStatement(userInsertSql, Statement.RETURN_GENERATED_KEYS);
-             PreparedStatement friendshipStatement = connection.prepareStatement(friendshipInsertSql)
-        ) {
-            Stream.of(
-                            Stream.of(user),
-                            user.getRequests().stream().map(FriendshipEntity::getAddressee),
-                            user.getAddressees().stream().map(FriendshipEntity::getRequester)
-                    )
-                    .flatMap(Function.identity())
-                    .collect(Collectors.toSet())
-                    .forEach(userEntity -> {
-                                try {
-                                    userStatement.setString(1, userEntity.getUsername());
-                                    userStatement.setString(2, userEntity.getCurrency().name());
-                                    userStatement.setString(3, userEntity.getFirstname());
-                                    userStatement.setString(4, userEntity.getSurname());
-                                    userStatement.setBytes(5, userEntity.getPhoto());
-                                    userStatement.setBytes(6, userEntity.getPhotoSmall());
-                                    userStatement.setString(7, userEntity.getFullname());
-                                    userStatement.executeUpdate();
-                                    userStatement.clearParameters();
+        try (PreparedStatement statement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setString(1, user.getUsername());
+            statement.setString(2, user.getCurrency().name());
+            statement.setString(3, user.getFirstname());
+            statement.setString(4, user.getSurname());
+            statement.setBytes(5, user.getPhoto());
+            statement.setBytes(6, user.getPhotoSmall());
+            statement.setString(7, user.getFullName());
+            statement.executeUpdate();
 
-                                    try (ResultSet resultSet = userStatement.getGeneratedKeys()) {
-                                        resultSet.next();
-                                        UUID generatedId = resultSet.getObject("id", UUID.class);
-                                        userEntity.setId(generatedId);
-                                    }
-                                } catch (SQLException e) {
-                                    throw new RuntimeException("Ошибка при сохранении пользователя", e);
-                                }
-                            }
-                    );
-            Stream.concat(
-                            user.getRequests().stream(),
-                            user.getAddressees().stream()
-                    )
-                    .collect(Collectors.toSet())
-                    .forEach(friendshipEntity -> {
-                                try {
-                                    friendshipStatement.setObject(1, friendshipEntity.getRequester().getId());
-                                    friendshipStatement.setObject(2, friendshipEntity.getAddressee().getId());
-                                    friendshipStatement.setString(3, friendshipEntity.getStatus().name());
-                                    friendshipStatement.executeUpdate();
-                                    friendshipStatement.clearParameters();
-                                } catch (SQLException e) {
-                                    throw new RuntimeException("Ошибка при сохранении отношения", e);
-                                }
-                            }
-                    );
+            try (ResultSet resultSet = statement.getGeneratedKeys()) {
+                resultSet.next();
+                UUID generatedId = resultSet.getObject("id", UUID.class);
+                return user.setId(generatedId);
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при сохранении пользователя", e);
         }
-        return user;
     }
 
     @Override
