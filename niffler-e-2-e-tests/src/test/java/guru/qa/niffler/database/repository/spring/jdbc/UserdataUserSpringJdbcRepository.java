@@ -70,6 +70,30 @@ public class UserdataUserSpringJdbcRepository implements UserdataUserRepository 
     }
 
     @Override
+    public Optional<UserEntity> findByUsername(String username) {
+        String insertSql = """
+                SELECT
+                    u.*,
+                    f.requester_id,
+                    f.addressee_id,
+                    f.status
+                FROM "user" u
+                JOIN friendship f ON u.id = f.requester_id OR u.id = f.addressee_id
+                WHERE ? IN (
+                            SELECT username FROM "user" WHERE id IN (f.requester_id, f.addressee_id)
+                );
+                """;
+        Map<UUID, UserEntity> userStore = jdbcTemplate.query(
+                insertSql,
+                UserdataUserRowExtractor.INSTANCE,
+                username
+        );
+        return Objects.nonNull(userStore)
+                ? userStore.values().stream().filter(u -> u.getUsername().equals(username)).findFirst()
+                : Optional.empty();
+    }
+
+    @Override
     public void createFriendship(UserEntity requester, UserEntity addressee) {
         String insertSql = """
                 INSERT INTO friendship(requester_id, addressee_id, status)

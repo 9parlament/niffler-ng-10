@@ -11,6 +11,8 @@ public interface UserdataUserRepository {
 
     Optional<UserEntity> findById(UUID id);
 
+    Optional<UserEntity> findByUsername(String username);
+
     void createFriendship(UserEntity requester, UserEntity addressee);
 
     void createInvitation(UserEntity requester, UserEntity addressee);

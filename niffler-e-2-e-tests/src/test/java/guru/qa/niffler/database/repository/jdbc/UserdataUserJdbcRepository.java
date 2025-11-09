@@ -4,7 +4,6 @@ import guru.qa.niffler.database.repository.UserdataUserRepository;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.FriendshipState;
 import guru.qa.niffler.model.entity.FriendshipEntity;
-import guru.qa.niffler.model.entity.FriendshipEntity.FriendshipId;
 import guru.qa.niffler.model.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 
@@ -108,6 +107,71 @@ public class UserdataUserJdbcRepository implements UserdataUserRepository {
             return Objects.isNull(userStore.get(id))
                     ? Optional.empty()
                     : Optional.of(userStore.get(id));
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при получении данных пользователя", e);
+        }
+    }
+
+    @Override
+    public Optional<UserEntity> findByUsername(String username) {
+        String selectSql = """
+                SELECT u.*,
+                       f.status,
+                       f.requester_id,
+                       f.addressee_id
+                FROM "user" u
+                JOIN friendship f ON u.id = f.requester_id OR u.id =  f.addressee_id
+                WHERE ? IN (
+                SELECT username FROM "user" WHERE id IN (f.requester_id, f.addressee_id)
+                );
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
+            statement.setString(1, username);
+            Map<UUID, UserEntity> userStore = new HashMap<>();
+            List<FriendshipEntity> userFriendshipStore = new ArrayList<>();
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String userUsername = resultSet.getString("username");
+                    UUID userId = resultSet.getObject("id", UUID.class);
+                    if (!userStore.containsKey(userId)) {
+                        UserEntity user = new UserEntity()
+                                .setId(userId)
+                                .setUsername(userUsername)
+                                .setFullName(resultSet.getString("full_name"))
+                                .setSurname(resultSet.getString("surname"))
+                                .setFirstname(resultSet.getString("firstname"))
+                                .setCurrency(CurrencyValues.valueOf(resultSet.getString("currency")))
+                                .setPhoto(resultSet.getBytes("photo"))
+                                .setPhotoSmall(resultSet.getBytes("photo_small"));
+                        userStore.put(userId, user);
+                    }
+
+                    if (userUsername.equals(username)) {
+                        FriendshipEntity userFriendship = new FriendshipEntity()
+                                .setFriendShipId(new FriendshipEntity.FriendshipId(
+                                        resultSet.getObject("requester_id", UUID.class),
+                                        resultSet.getObject("addressee_id", UUID.class)))
+                                .setStatus(FriendshipState.valueOf(
+                                        resultSet.getString("status")));
+                        userFriendshipStore.add(userFriendship);
+                    }
+                }
+
+                userFriendshipStore.forEach(friendshipEntity -> {
+                    UUID requesterId = friendshipEntity.getFriendShipId().requester();
+                    UserEntity requester = userStore.get(requesterId);
+                    friendshipEntity.setRequester(requester);
+                    requester.getRequests().add(friendshipEntity);
+
+                    UUID addresseeId = friendshipEntity.getFriendShipId().addressee();
+                    UserEntity addressee = userStore.get(addresseeId);
+                    friendshipEntity.setAddressee(addressee);
+                    addressee.getAddressees().add(friendshipEntity);
+                });
+            }
+            return userStore.values().stream()
+                    .filter(u -> u.getUsername().equals(username))
+                    .findFirst();
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при получении данных пользователя", e);
         }
