@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class JdbcAuthUserRepository implements AuthUserRepository {
+public class AuthUserJdbcRepository implements AuthUserRepository {
     private final Connection connection;
 
     @Override

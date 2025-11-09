@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class JdbcUserdataUserRepository implements UserdataUserRepository {
+public class UserdataUserJdbcRepository implements UserdataUserRepository {
     private final Connection connection;
 
     @Override
@@ -145,7 +145,7 @@ public class JdbcUserdataUserRepository implements UserdataUserRepository {
     }
 
     @Override
-    public void createIncomeInvitation(UserEntity requester, UserEntity addressee) {
+    public void createInvitation(UserEntity requester, UserEntity addressee) {
         String insertSql = """
                 INSERT INTO friendship(requester_id, addressee_id, status)
                 VALUES (?, ?, ?)
@@ -157,26 +157,6 @@ public class JdbcUserdataUserRepository implements UserdataUserRepository {
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при попытке создания отношения \"Исходящее предложение дружбы\"", e);
-        }
-
-        FriendshipEntity invitation = FriendshipEntity.createInvitation(requester, addressee);
-        requester.getRequests().add(invitation);
-        addressee.getAddressees().add(invitation);
-    }
-
-    @Override
-    public void createOutcomeInvitation(UserEntity addressee, UserEntity requester) {
-        String insertSql = """
-                INSERT INTO friendship(requester_id, addressee_id, status)
-                VALUES (?, ?, ?)
-                """;
-        try (PreparedStatement statement = connection.prepareStatement(insertSql)) {
-            statement.setObject(1, requester.getId());
-            statement.setObject(2, addressee.getId());
-            statement.setString(3, FriendshipState.PENDING.name());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Ошибка при попытке создания отношения \"Входящее предложение дружбы\"", e);
         }
 
         FriendshipEntity invitation = FriendshipEntity.createInvitation(requester, addressee);

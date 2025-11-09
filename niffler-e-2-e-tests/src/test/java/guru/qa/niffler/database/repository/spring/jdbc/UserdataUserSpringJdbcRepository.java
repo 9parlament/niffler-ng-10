@@ -106,25 +106,7 @@ public class UserdataUserSpringJdbcRepository implements UserdataUserRepository 
     }
 
     @Override
-    public void createIncomeInvitation(UserEntity requester, UserEntity addressee) {
-        String insertSql = """
-                INSERT INTO friendship(requester_id, addressee_id, status)
-                VALUES (?, ?, ?)
-                """;
-        jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement(insertSql);
-            statement.setObject(1, requester.getId());
-            statement.setObject(2, addressee.getId());
-            statement.setString(3, FriendshipState.PENDING.name());
-            return statement;
-        });
-        FriendshipEntity invitation = FriendshipEntity.createInvitation(requester, addressee);
-        requester.getRequests().add(invitation);
-        addressee.getAddressees().add(invitation);
-    }
-
-    @Override
-    public void createOutcomeInvitation(UserEntity addressee, UserEntity requester) {
+    public void createInvitation(UserEntity requester, UserEntity addressee) {
         String insertSql = """
                 INSERT INTO friendship(requester_id, addressee_id, status)
                 VALUES (?, ?, ?)
