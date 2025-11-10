@@ -4,7 +4,7 @@ import guru.qa.niffler.database.SpendDbClient;
 import guru.qa.niffler.jupiter.annotation.Category;
 import guru.qa.niffler.jupiter.annotation.User;
 import guru.qa.niffler.model.api.CategoryJson;
-import guru.qa.niffler.model.entity.CategoryEntity;
+import guru.qa.niffler.service.SpendClient;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 
 public class CategoryExtension implements BeforeEachCallback, ParameterResolver, AfterEachCallback {
     private static final Namespace NAMESPACE = Namespace.create(CategoryExtension.class);
-    private final SpendDbClient spendClient = new SpendDbClient();
+    private final SpendClient spendClient = new SpendDbClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
@@ -54,7 +54,6 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
         CategoryJson category = categoryAnn.isArchived()
                 ? CategoryJson.create(username, categoryAnn.name()).setArchived(true)
                 : CategoryJson.create(username, categoryAnn.name());
-        CategoryEntity createdCategory = spendClient.createCategory(category);
-        return CategoryJson.fromEntity(createdCategory);
+        return spendClient.createCategory(category);
     }
 }
