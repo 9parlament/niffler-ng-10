@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class CategoryEntity {
     private String username;
     private boolean archived;
     @OneToMany(mappedBy = "category", cascade = REMOVE)
-    List<SpendEntity> spends;
+    List<SpendEntity> spends = new ArrayList<>();
 
     public static CategoryEntity fromJson(CategoryJson categoryJson) {
         return new CategoryEntity()

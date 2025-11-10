@@ -111,14 +111,29 @@ public class SpendJdbcRepository implements SpendRepository {
 
     @Override
     public Optional<CategoryEntity> findCategoryById(UUID id) {
-        String selectSql = "SELECT * FROM category WHERE id = ?";
+        String selectSql = """
+                SELECT spend.*,
+                       category.id AS category_table_id,
+                       category.name AS category_table_name,
+                       category.username AS category_table_username,
+                       category.archived AS category_table_archived
+                FROM spend
+                JOIN category ON spend.category_id = category.id
+                WHERE spend.category_id = ?;
+                """;
         try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
-            statement.setObject(1, UUID.class);
+            statement.setObject(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
-                return resultSet.next()
-                        ? Optional.of(mapRowToCategory(resultSet))
-                        : Optional.empty();
+                List<SpendEntity> spends = new ArrayList<>();
+                while (resultSet.next()) {
+                    SpendEntity spend = mapRowToSpend(resultSet);
+                    spends.add(spend);
+                }
+                return spends.isEmpty()
+                        ? Optional.empty()
+                        : Optional.of(spends.getFirst().getCategory().setSpends(spends));
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при получении категории по её id", e);
         }
@@ -126,15 +141,30 @@ public class SpendJdbcRepository implements SpendRepository {
 
     @Override
     public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
-        String selectSql = "SELECT * FROM category WHERE username = ? AND name = ?";
+        String selectSql = """
+                SELECT spend.*,
+                       category.id AS category_table_id,
+                       category.name AS category_table_name,
+                       category.username AS category_table_username,
+                       category.archived AS category_table_archived
+                FROM spend
+                JOIN category ON spend.category_id = category.id
+                WHERE category.username = ? AND category.name = ?;
+                """;
         try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
             statement.setString(1, username);
-            statement.setString(2, categoryName);
+            statement.setString(1, categoryName);
             try (ResultSet resultSet = statement.executeQuery()) {
-                return resultSet.next()
-                        ? Optional.of(mapRowToCategory(resultSet))
-                        : Optional.empty();
+                List<SpendEntity> spends = new ArrayList<>();
+                while (resultSet.next()) {
+                    SpendEntity spend = mapRowToSpend(resultSet);
+                    spends.add(spend);
+                }
+                return spends.isEmpty()
+                        ? Optional.empty()
+                        : Optional.of(spends.getFirst().getCategory().setSpends(spends));
             }
+
         } catch (SQLException e) {
             throw new RuntimeException("Ошибка при получении категории по её id", e);
         }

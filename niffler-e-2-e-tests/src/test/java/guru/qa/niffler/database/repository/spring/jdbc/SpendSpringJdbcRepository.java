@@ -1,8 +1,8 @@
 package guru.qa.niffler.database.repository.spring.jdbc;
 
-import guru.qa.niffler.database.dao.spring.jdbc.mapper.CategoryRowMapper;
 import guru.qa.niffler.database.dao.spring.jdbc.mapper.SpendRowMapper;
 import guru.qa.niffler.database.repository.SpendRepository;
+import guru.qa.niffler.database.repository.spring.jdbc.extractor.CategoryRowExtractor;
 import guru.qa.niffler.model.entity.CategoryEntity;
 import guru.qa.niffler.model.entity.SpendEntity;
 import lombok.RequiredArgsConstructor;
@@ -108,21 +108,41 @@ public class SpendSpringJdbcRepository implements SpendRepository {
 
     @Override
     public Optional<CategoryEntity> findCategoryById(UUID id) {
-        return jdbcTemplate.query(
-                        "SELECT * FROM category WHERE id = ?",
-                        CategoryRowMapper.INSTANCE,
-                        id)
-                .stream().findFirst();
+        String selectSql = """
+                SELECT spend.*,
+                       category.id AS category_table_id,
+                       category.name AS category_table_name,
+                       category.username AS category_table_username,
+                       category.archived AS category_table_archived
+                FROM spend
+                JOIN category ON spend.category_id = category.id
+                WHERE spend.category_id = ?;
+                """;
+        CategoryEntity foundCategory = jdbcTemplate.query(
+                selectSql,
+                CategoryRowExtractor.INSTANCE,
+                id);
+        return Optional.ofNullable(foundCategory);
     }
 
     @Override
     public Optional<CategoryEntity> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
-        return jdbcTemplate.query(
-                        "SELECT * FROM category WHERE username = ? AND name = ?",
-                        CategoryRowMapper.INSTANCE,
-                        username,
-                        categoryName)
-                .stream().findFirst();
+        String selectSql = """
+                SELECT spend.*,
+                       category.id AS category_table_id,
+                       category.name AS category_table_name,
+                       category.username AS category_table_username,
+                       category.archived AS category_table_archived
+                FROM spend
+                JOIN category ON spend.category_id = category.id
+                WHERE category.username = ? AND category.name = ?;
+                """;
+        CategoryEntity foundCategory = jdbcTemplate.query(
+                selectSql,
+                CategoryRowExtractor.INSTANCE,
+                username,
+                categoryName);
+        return Optional.ofNullable(foundCategory);
     }
 
     @Override

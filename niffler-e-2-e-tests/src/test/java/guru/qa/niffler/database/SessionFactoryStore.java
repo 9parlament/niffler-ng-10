@@ -21,10 +21,10 @@ import static org.hibernate.cfg.MappingSettings.PHYSICAL_NAMING_STRATEGY;
 
 
 @NoArgsConstructor(access = PRIVATE)
-public class SessionFactoryStore {
+class SessionFactoryStore {
     private static final Map<Database, SessionFactory> SESSION_FACTORY_STORE = new ConcurrentHashMap<>();
 
-    public static SessionFactory getSessionFactory(Database database) {
+    static SessionFactory getSessionFactory(Database database) {
         return SESSION_FACTORY_STORE.computeIfAbsent(
                 database,
                 SessionFactoryStore::createSessionFactory
