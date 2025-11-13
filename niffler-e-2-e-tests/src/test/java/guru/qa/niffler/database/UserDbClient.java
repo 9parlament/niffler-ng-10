@@ -6,10 +6,12 @@ import guru.qa.niffler.database.repository.hibernate.AuthUserHibernateRepository
 import guru.qa.niffler.database.repository.hibernate.UserdataUserHibernateRepository;
 import guru.qa.niffler.model.api.UserJson;
 import guru.qa.niffler.model.entity.AuthUserEntity;
+import guru.qa.niffler.model.entity.FriendshipEntity;
 import guru.qa.niffler.model.entity.UserEntity;
 import guru.qa.niffler.service.UserClient;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static guru.qa.niffler.common.utils.NifflerFaker.randomPassword;
@@ -48,39 +50,43 @@ public class UserDbClient implements UserClient {
     }
 
     @Override
-    public void createIncomeInvitations(UserJson addressee, int count) {
+    public List<UserJson> createIncomeInvitations(UserJson addressee, int count) {
         List<UserData> requesters = Stream.generate(this::createRandomUser)
                 .limit(count)
                 .toList();
+        UserEntity addresseeEntity = UserEntity.from(addressee);
         executeInXaTransaction(() -> {
             requesters.forEach(requester -> {
                         authUserRepository.save(requester.userAuthPart());
                         userdataUserRepository.create(requester.userUserdataPart());
-                        userdataUserRepository.createInvitation(requester.userUserdataPart(), UserEntity.from(addressee));
+                        userdataUserRepository.createInvitation(requester.userUserdataPart(), addresseeEntity);
                     }
             );
             return null;
         });
+        return addresseeEntity.getAddressees().stream().map(FriendshipEntity::getRequester).map(UserJson::from).collect(Collectors.toList());
     }
 
     @Override
-    public void createOutcomeInvitations(UserJson requester, int count) {
+    public List<UserJson> createOutcomeInvitations(UserJson requester, int count) {
         List<UserData> addressees = Stream.generate(this::createRandomUser)
                 .limit(count)
                 .toList();
+        UserEntity requesterEntity = UserEntity.from(requester);
         executeInXaTransaction(() -> {
             addressees.forEach(addressee -> {
                         authUserRepository.save(addressee.userAuthPart());
                         userdataUserRepository.create(addressee.userUserdataPart());
-                        userdataUserRepository.createInvitation(addressee.userUserdataPart(), UserEntity.from(requester));
+                        userdataUserRepository.createInvitation(requesterEntity, addressee.userUserdataPart());
                     }
             );
             return null;
         });
+        return requesterEntity.getRequests().stream().map(FriendshipEntity::getAddressee).map(UserJson::from).collect(Collectors.toList());
     }
 
     @Override
-    public void createFriendShip(UserJson requester, int count) {
+    public List<UserJson> createFriendShip(UserJson requester, int count) {
         List<UserData> addressees = Stream.generate(this::createRandomUser)
                 .limit(count)
                 .toList();
@@ -94,6 +100,7 @@ public class UserDbClient implements UserClient {
             );
             return null;
         });
+        return requesterEntity.getRequests().stream().map(FriendshipEntity::getAddressee).map(UserJson::from).collect(Collectors.toList());
     }
 
     private UserData createRandomUser() {

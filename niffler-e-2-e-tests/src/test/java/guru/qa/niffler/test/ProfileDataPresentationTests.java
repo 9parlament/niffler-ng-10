@@ -8,6 +8,7 @@ import guru.qa.niffler.ui.page.LoginPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static guru.qa.niffler.jupiter.annotation.UserType.DEFAULT;
 import static guru.qa.niffler.model.User.DEFAULT_USER;
 
 //TODO: Осуществлять переход сразу на страницу профиля после реализации неявной авторизации
@@ -15,7 +16,9 @@ import static guru.qa.niffler.model.User.DEFAULT_USER;
 class ProfileDataPresentationTests {
 
     @Test
-    @User(categories = @Category(isArchived = true))
+    @User(
+            user = DEFAULT,
+            categories = @Category(isArchived = true))
     @DisplayName("Отображение архивной категории в списке, если опция \"Show archived\" активна")
     void archivedCategoryShouldPresentInCategoriesWhenShowArchivedIsEnabledTest(CategoryJson category) {
         Browser.open(LoginPage.class)
@@ -26,7 +29,9 @@ class ProfileDataPresentationTests {
     }
 
     @Test
-    @User(categories = @Category(isArchived = false))
+    @User(
+            user = DEFAULT,
+            categories = @Category(isArchived = false))
     @DisplayName("Отображение активной категории в списке категорий после перехода на страницу профиля")
     void activeCategoryShouldPresentInCategoriesWhenProfilePageIsOpenedTest(CategoryJson category) {
         Browser.open(LoginPage.class)
@@ -37,7 +42,9 @@ class ProfileDataPresentationTests {
 
 
     @Test
-    @User(categories = @Category(isArchived = false))
+    @User(
+            user = DEFAULT,
+            categories = @Category(isArchived = false))
     @DisplayName("Исчезновение активной категории из списка после её архивации. Опция \"Show archived\" не активна")
     void activeCategoryShouldNotPresentInCategoriesAfterArchiveThatTest(CategoryJson category) {
         Browser.open(LoginPage.class)
@@ -49,7 +56,9 @@ class ProfileDataPresentationTests {
     }
 
     @Test
-    @User(categories = @Category(isArchived = true))
+    @User(
+            user = DEFAULT,
+            categories = @Category(isArchived = true))
     @DisplayName("Появление архивной категории в списке после её разархивации")
     void archivedCategoryShouldBeActiveAndPresentInCategoriesAfterUnarchiveThatTest(CategoryJson category) {
         Browser.open(LoginPage.class)

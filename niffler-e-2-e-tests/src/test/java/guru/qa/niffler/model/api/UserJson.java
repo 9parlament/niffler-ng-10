@@ -1,8 +1,10 @@
 package guru.qa.niffler.model.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.FriendshipStatus;
 import guru.qa.niffler.model.entity.UserEntity;
+import guru.qa.niffler.model.test.TestData;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -23,6 +25,7 @@ public class UserJson {
     private String photo;
     private String photoSmall;
     private FriendshipStatus friendshipStatus;
+    @JsonIgnore private TestData testData;
 
     public static UserJson from(UserEntity userEntity) {
         return new UserJson()
