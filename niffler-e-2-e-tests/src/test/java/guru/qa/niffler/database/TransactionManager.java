@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -66,6 +67,27 @@ class TransactionManager {
 
     static void executeXaSerializable(XaConsumer... actions) {
         runInXaTransaction(Connection.TRANSACTION_SERIALIZABLE, actions);
+    }
+
+    @SafeVarargs
+    static <T> T executeInXaTransaction(Supplier<T>... actions) {
+        UserTransaction ut = new UserTransactionImp();
+        try {
+            ut.begin();
+            T result = null;
+            for (Supplier<T> action : actions) {
+                result = action.get();
+            }
+            ut.commit();
+            return result;
+        } catch (Exception e) {
+            try {
+                ut.rollback();
+            } catch (SystemException ex) {
+                e.addSuppressed(ex);
+            }
+            throw new RuntimeException("Ошибка при выполнении операции", e);
+        }
     }
 
     record XaFunction<T>(Function<Connection, T> func, Database database) {

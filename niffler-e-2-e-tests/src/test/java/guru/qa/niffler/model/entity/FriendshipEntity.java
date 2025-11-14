@@ -1,6 +1,7 @@
 package guru.qa.niffler.model.entity;
 
 import guru.qa.niffler.model.FriendshipState;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -27,10 +28,10 @@ public class FriendshipEntity {
     @EmbeddedId
     private FriendshipId friendShipId;
     @ManyToOne
-    @JoinColumn(name = "requester_id")
+    @JoinColumn(name = "requester_id", insertable = false, updatable = false)
     private UserEntity requester;
     @ManyToOne
-    @JoinColumn(name = "addressee_id")
+    @JoinColumn(name = "addressee_id", insertable = false, updatable = false)
     private UserEntity addressee;
     @Enumerated(STRING)
     private FriendshipState status;
@@ -41,6 +42,7 @@ public class FriendshipEntity {
                 .setFriendShipId(new FriendshipId(requester.getId(), addressee.getId()))
                 .setRequester(requester)
                 .setAddressee(addressee)
+                .setCreatedDate(new Date())
                 .setStatus(FriendshipState.ACCEPTED);
     }
 
@@ -49,6 +51,7 @@ public class FriendshipEntity {
                 .setFriendShipId(new FriendshipId(requester.getId(), addressee.getId()))
                 .setRequester(requester)
                 .setAddressee(addressee)
+                .setCreatedDate(new Date())
                 .setStatus(FriendshipState.PENDING);
     }
 
@@ -66,5 +69,7 @@ public class FriendshipEntity {
     }
 
     @Embeddable
-    public record FriendshipId(UUID requesterId, UUID addresseeId) {}
+    public record FriendshipId(@Column(name = "requester_id") UUID requester,
+                               @Column(name = "addressee_id") UUID addressee) {
+    }
 }

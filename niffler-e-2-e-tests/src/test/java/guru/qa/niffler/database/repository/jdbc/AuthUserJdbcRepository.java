@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class JdbcAuthUserRepository implements AuthUserRepository {
+public class AuthUserJdbcRepository implements AuthUserRepository {
     private final Connection connection;
 
     @Override
@@ -36,7 +36,7 @@ public class JdbcAuthUserRepository implements AuthUserRepository {
             userStmnt.setString(1, user.getUsername());
             userStmnt.setString(2, user.getPassword());
             userStmnt.setBoolean(3, user.getEnabled());
-            userStmnt.setBoolean(4, user.getAccountNotExpired());
+            userStmnt.setBoolean(4, user.getAccountNonExpired());
             userStmnt.setBoolean(5, user.getAccountNonLocked());
             userStmnt.setBoolean(6, user.getCredentialsNonExpired());
             userStmnt.executeUpdate();
@@ -82,6 +82,47 @@ public class JdbcAuthUserRepository implements AuthUserRepository {
         }
     }
 
+    @Override
+    public Optional<AuthUserEntity> findByUsername(String username) {
+        String selectSql = """
+                SELECT u.*,
+                a.id AS authority_id,
+                a.authority AS authority_authority
+                FROM "user" u
+                JOIN authority a ON u.id = a.user_id
+                WHERE u.username = ?;
+                """;
+        try (PreparedStatement statement = connection.prepareStatement(selectSql)) {
+            statement.setString(1, username);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                AuthUserEntity authUser = null;
+                while (resultSet.next()) {
+                    authUser = mapRowToUser(resultSet, authUser);
+                }
+                return Optional.ofNullable(authUser);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при получении данных пользователя", e);
+        }
+    }
+
+    @Override
+    public void delete(AuthUserEntity user) {
+        String authorityDeleteSql = "DELETE FROM authority WHERE user_id = ?";
+        String userDeleteSql = "DELETE FROM \"user\" WHERE id = ?";
+        try (PreparedStatement authorityStatement = connection.prepareStatement(authorityDeleteSql);
+             PreparedStatement userStatement = connection.prepareStatement(userDeleteSql)
+        ) {
+            authorityStatement.setObject(1, user.getId());
+            authorityStatement.executeUpdate();
+
+            userStatement.setObject(1, user.getId());
+            userStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при удалении пользователя", e);
+        }
+    }
+
     @SneakyThrows
     private AuthUserEntity mapRowToUser(ResultSet resultSet, AuthUserEntity user) {
         if (Objects.isNull(user)) {
@@ -90,7 +131,7 @@ public class JdbcAuthUserRepository implements AuthUserRepository {
                     .setUsername(resultSet.getString("username"))
                     .setPassword(resultSet.getString("password"))
                     .setEnabled(resultSet.getBoolean("enabled"))
-                    .setAccountNotExpired(resultSet.getBoolean("account_non_expired"))
+                    .setAccountNonExpired(resultSet.getBoolean("account_non_expired"))
                     .setAccountNonLocked(resultSet.getBoolean("account_non_locked"))
                     .setCredentialsNonExpired(resultSet.getBoolean("credentials_non_expired"))
                     .setAuthorities(new ArrayList<>());

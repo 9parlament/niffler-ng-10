@@ -4,12 +4,17 @@ import guru.qa.niffler.model.api.CategoryJson;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+
+import static jakarta.persistence.CascadeType.REMOVE;
 
 @Getter
 @Setter
@@ -23,6 +28,8 @@ public class CategoryEntity {
     private String name;
     private String username;
     private boolean archived;
+    @OneToMany(mappedBy = "category", cascade = REMOVE)
+    List<SpendEntity> spends = new ArrayList<>();
 
     public static CategoryEntity fromJson(CategoryJson categoryJson) {
         return new CategoryEntity()
