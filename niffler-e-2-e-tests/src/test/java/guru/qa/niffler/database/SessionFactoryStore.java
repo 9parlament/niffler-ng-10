@@ -35,8 +35,7 @@ class SessionFactoryStore {
         var config = new HibernatePersistenceConfiguration(database.getDbName())
                 .transactionType(JTA)
                 .property(JAKARTA_JTA_DATASOURCE, ConnectionManager.getDataSource(database))
-                .property(PHYSICAL_NAMING_STRATEGY, PhysicalNamingStrategySnakeCaseImpl.class)
-                .showSql(true, true, true);
+                .property(PHYSICAL_NAMING_STRATEGY, PhysicalNamingStrategySnakeCaseImpl.class);
         switch (database) {
             case AUTH -> config
                     .managedClass(AuthorityEntity.class)
