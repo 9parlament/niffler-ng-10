@@ -30,7 +30,10 @@ public class UserdataUserHibernateRepository implements UserdataUserRepository {
 
     @Override
     public Optional<UserEntity> findByUsername(String username) {
-        return Optional.empty();
+        return sessionFactory.openSession()
+                .createSelectionQuery("from UserEntity where username = ?1", UserEntity.class)
+                .setParameter(1, username)
+                .uniqueResultOptional();
     }
 
     @Override

@@ -236,7 +236,7 @@ public class SpendJdbcRepository implements SpendRepository {
     @Override
     public void deleteCategory(CategoryEntity categoryEntity) {
         String spendDeleteSql = "DELETE FROM spend WHERE id = ?";
-        String categoryDeleteSql = "DELETE FROM spend WHERE id = ?";
+        String categoryDeleteSql = "DELETE FROM category WHERE id = ?";
         try (PreparedStatement spendStatement = connection.prepareStatement(spendDeleteSql);
              PreparedStatement categoryStatement = connection.prepareStatement(categoryDeleteSql)
         ) {
