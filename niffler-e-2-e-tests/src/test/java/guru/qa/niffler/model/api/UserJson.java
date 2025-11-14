@@ -12,6 +12,8 @@ import lombok.experimental.Accessors;
 import java.util.Arrays;
 import java.util.UUID;
 
+import static guru.qa.niffler.model.CurrencyValues.RUB;
+
 @Setter
 @Getter
 @Accessors(chain = true)
@@ -26,6 +28,12 @@ public class UserJson {
     private String photoSmall;
     private FriendshipStatus friendshipStatus;
     @JsonIgnore private TestData testData;
+
+    public static UserJson create(String username) {
+        return new UserJson()
+                .setUsername(username)
+                .setCurrency(RUB);
+    }
 
     public static UserJson from(UserEntity userEntity) {
         return new UserJson()
