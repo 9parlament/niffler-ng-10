@@ -1,7 +1,7 @@
 package guru.qa.niffler.ui.page;
 
 import com.codeborne.selenide.ElementsCollection;
-import guru.qa.niffler.model.test.user.User;
+import guru.qa.niffler.model.api.UserJson;
 import io.qameta.allure.Step;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class PeoplePage {
     private final ElementsCollection peopleRows = $$("tr");
 
     @Step("Проверить, что у пользователя отображаются исходящие запросы дружбы")
-    public PeoplePage checkThatOutcomeInvitationsExists(List<User> outcomeInvitations) {
+    public PeoplePage checkThatOutcomeInvitationsExists(List<UserJson> outcomeInvitations) {
         outcomeInvitations.forEach(
                 user -> {
                     peopleRows.findBy(text(user.getUsername()))
@@ -31,11 +31,11 @@ public class PeoplePage {
     }
 
     @Step("Проверить, что у пользователя отображаются входящие запросы дружбы")
-    public PeoplePage checkThatIncomeInvitationsExists(List<User> incomeInvitations) {
+    public PeoplePage checkThatIncomeInvitationsExists(List<UserJson> incomeInvitations) {
         incomeInvitations.forEach(
                 user -> {
                     peopleRows.findBy(text(user.getUsername()))
-                            .$$("span.MuiTouchRipple-root")
+                            .$$(".MuiButtonBase-root")
                             .findBy(text("Accept"))
                             .as("кнопка принятия входящего запроса дружбы")
                             .should(exist)
@@ -46,7 +46,7 @@ public class PeoplePage {
     }
 
     @Step("Проверить, что у пользователя отображаются его друзья")
-    public PeoplePage checkThatFriendsExists(List<User> friends) {
+    public PeoplePage checkThatFriendsExists(List<UserJson> friends) {
         friends.forEach(
                 user -> {
                     peopleRows.findBy(text(user.getUsername()))
@@ -72,5 +72,4 @@ public class PeoplePage {
                 .shouldBe(visible);
         return this;
     }
-
 }

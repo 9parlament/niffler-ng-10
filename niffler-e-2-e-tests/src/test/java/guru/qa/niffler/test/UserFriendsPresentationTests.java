@@ -1,57 +1,54 @@
 package guru.qa.niffler.test;
 
-import guru.qa.niffler.model.test.user.User;
-import guru.qa.niffler.jupiter.annotation.UserT;
-import guru.qa.niffler.jupiter.extension.UserQueueExtension;
+import guru.qa.niffler.jupiter.annotation.User;
+import guru.qa.niffler.model.api.UserJson;
 import guru.qa.niffler.ui.core.Browser;
 import guru.qa.niffler.ui.page.LoginPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import static guru.qa.niffler.model.test.user.UserType.EMPTY;
-import static guru.qa.niffler.model.test.user.UserType.WITH_FRIEND;
-import static guru.qa.niffler.model.test.user.UserType.WITH_INCOME_REQUEST;
-import static guru.qa.niffler.model.test.user.UserType.WITH_OUTCOME_REQUEST;
+import static guru.qa.niffler.jupiter.annotation.UserType.RANDOM;
 
-
-@ExtendWith(UserQueueExtension.class)
 @DisplayName("Отображение запросов о дружбе и списка друзей пользователя")
 class UserFriendsPresentationTests {
 
     @Test
+    @User(user = RANDOM, outcomeInvitations = 2)
     @DisplayName("Исходящие запросы дружбы должны быть на странице всех пользователей системы")
-    void outcomeInvitationsShouldBePresentOnAllPeopleTabTest(@UserT(WITH_OUTCOME_REQUEST) User user) {
+    void outcomeInvitationsShouldBePresentOnAllPeopleTabTest(UserJson user) {
         Browser.open(LoginPage.class)
-                .login(user.getUsername(), user.getPassword())
+                .login(user.getUsername(), user.getTestData().password())
                 .goToPeoplePage()
-                .checkThatOutcomeInvitationsExists(user.getOutcomeInvitations());
+                .checkThatOutcomeInvitationsExists(user.getTestData().outcomeInvitations());
     }
 
     @Test
+    @User(user = RANDOM, incomeInvitations = 2)
     @DisplayName("Входящие запросы дружбы должны быть на странице друзей пользователя")
-    void incomeInvitationShouldBePresentInFriendRequestsTest(@UserT(WITH_INCOME_REQUEST) User user) {
+    void incomeInvitationShouldBePresentInFriendRequestsTest(UserJson user) {
         Browser.open(LoginPage.class)
-                .login(user.getUsername(), user.getPassword())
+                .login(user.getUsername(), user.getTestData().password())
                 .goToFriendsPage()
-                .checkThatIncomeInvitationsExists(user.getIncomeInvitations());
+                .checkThatIncomeInvitationsExists(user.getTestData().incomeInvitations());
     }
 
     @Test
+    @User(user = RANDOM, friends = 2)
     @DisplayName("Друзья должны быть на странице друзей пользователя")
-    void friendsShouldBePresentInMyFriendsListTest(@UserT(WITH_FRIEND) User user) {
+    void friendsShouldBePresentInMyFriendsListTest(UserJson user) {
         Browser.open(LoginPage.class)
-                .login(user.getUsername(), user.getPassword())
+                .login(user.getUsername(), user.getTestData().password())
                 .goToFriendsPage()
-                .checkThatFriendsExists(user.getFriends());
+                .checkThatFriendsExists(user.getTestData().friends());
 
     }
 
     @Test
+    @User(user = RANDOM)
     @DisplayName("Список друзей должен быть пуст, если у пользователя нет друзей")
-    void friendsListShouldBeEmptyIfUserHasNotFriendsTest(@UserT(EMPTY) User user) {
+    void friendsListShouldBeEmptyIfUserHasNotFriendsTest(UserJson user) {
         Browser.open(LoginPage.class)
-                .login(user.getUsername(), user.getPassword())
+                .login(user.getUsername(), user.getTestData().password())
                 .goToFriendsPage()
                 .checkThatFriendsNoExists();
     }

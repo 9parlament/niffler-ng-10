@@ -1,14 +1,18 @@
 package guru.qa.niffler.model.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.FriendshipStatus;
 import guru.qa.niffler.model.entity.UserEntity;
+import guru.qa.niffler.model.test.TestData;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.Arrays;
 import java.util.UUID;
+
+import static guru.qa.niffler.model.CurrencyValues.RUB;
 
 @Setter
 @Getter
@@ -23,6 +27,13 @@ public class UserJson {
     private String photo;
     private String photoSmall;
     private FriendshipStatus friendshipStatus;
+    @JsonIgnore private TestData testData;
+
+    public static UserJson create(String username) {
+        return new UserJson()
+                .setUsername(username)
+                .setCurrency(RUB);
+    }
 
     public static UserJson from(UserEntity userEntity) {
         return new UserJson()
