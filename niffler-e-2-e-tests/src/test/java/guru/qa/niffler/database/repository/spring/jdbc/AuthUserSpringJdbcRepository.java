@@ -31,7 +31,7 @@ public class AuthUserSpringJdbcRepository implements AuthUserRepository {
                     statement.setString(1, userEntity.getUsername());
                     statement.setString(2, userEntity.getPassword());
                     statement.setBoolean(3, userEntity.getEnabled());
-                    statement.setBoolean(4, userEntity.getAccountNotExpired());
+                    statement.setBoolean(4, userEntity.getAccountNonExpired());
                     statement.setBoolean(5, userEntity.getAccountNonLocked());
                     statement.setBoolean(6, userEntity.getCredentialsNonExpired());
                     return statement;
@@ -68,5 +68,24 @@ public class AuthUserSpringJdbcRepository implements AuthUserRepository {
                 WHERE u.id = ?;
                 """;
         return Optional.ofNullable(jdbcTemplate.query(selectSql, AuthUserRowExtractor.INSTANCE, id));
+    }
+
+    @Override
+    public Optional<AuthUserEntity> findByUsername(String username) {
+        String selectSql = """
+                SELECT u.*,
+                a.id AS authority_id,
+                a.authority AS authority_authority
+                FROM "user" u
+                JOIN authority a ON u.id = a.user_id
+                WHERE u.username = ?;
+                """;
+        return Optional.ofNullable(jdbcTemplate.query(selectSql, AuthUserRowExtractor.INSTANCE, username));
+    }
+
+    @Override
+    public void delete(AuthUserEntity user) {
+        jdbcTemplate.update("DELETE FROM authority WHERE user_id = ?", user.getId());
+        jdbcTemplate.update("DELETE FROM \"user\" WHERE id = ?", user.getId());
     }
 }

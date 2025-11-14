@@ -1,62 +1,88 @@
 package guru.qa.niffler.database;
 
-import guru.qa.niffler.database.dao.jdbc.JdbcCategoryDao;
-import guru.qa.niffler.database.dao.jdbc.JdbcSpendDao;
+import guru.qa.niffler.database.repository.SpendRepository;
+import guru.qa.niffler.database.repository.hibernate.SpendHibernateRepository;
 import guru.qa.niffler.model.api.CategoryJson;
 import guru.qa.niffler.model.api.SpendJson;
 import guru.qa.niffler.model.entity.CategoryEntity;
 import guru.qa.niffler.model.entity.SpendEntity;
+import guru.qa.niffler.service.SpendClient;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-import static guru.qa.niffler.database.TransactionManager.executeInTransaction;
+import static guru.qa.niffler.database.Database.SPEND;
+import static guru.qa.niffler.database.SessionFactoryStore.getSessionFactory;
+import static guru.qa.niffler.database.TransactionManager.executeInXaTransaction;
 
 
-public class SpendDbClient {
+public class SpendDbClient implements SpendClient {
+    private final SpendRepository spendRepository;
 
-    public SpendEntity createSpend(SpendJson spend) {
+    public SpendDbClient() {
+        spendRepository = new SpendHibernateRepository(getSessionFactory(SPEND));
+    }
+
+    @Override
+    public SpendJson createSpend(SpendJson spend) {
         SpendEntity spendEntity = SpendEntity.fromJson(spend);
         CategoryEntity categoryEntity = spendEntity.getCategory();
-        return Objects.isNull(categoryEntity.getId())
-                ? executeInTransaction(connection -> {
-                    new JdbcCategoryDao(connection).save(categoryEntity);
-                    return new JdbcSpendDao(connection).save(spendEntity);
-                },
-                Database.SPEND)
-                : executeInTransaction(connection -> {
-                    return new JdbcSpendDao(connection).save(spendEntity);
-                },
-                Database.SPEND);
+        return SpendJson.fromEntity(
+                Objects.isNull(categoryEntity.getId())
+                        ? executeInXaTransaction(() -> {
+                            spendRepository.createCategory(categoryEntity);
+                            return spendRepository.create(spendEntity);
+                        }
+                )
+                        : executeInXaTransaction(() -> spendRepository.create(spendEntity)));
     }
 
-    public CategoryEntity createCategory(CategoryJson category) {
+    @Override
+    public SpendJson editSpend(SpendJson spend) {
+        executeInXaTransaction(() -> {
+            spendRepository.findById(spend.getId());
+            spendRepository.update(SpendEntity.fromJson(spend));
+            return null;
+        });
+        return spend;
+    }
+
+    public CategoryJson createCategory(CategoryJson category) {
         CategoryEntity categoryEntity = CategoryEntity.fromJson(category);
-        return executeInTransaction(connection -> {
-                    return new JdbcCategoryDao(connection).save(categoryEntity);
-                },
-                Database.SPEND);
+        executeInXaTransaction(() -> spendRepository.createCategory(categoryEntity));
+        return CategoryJson.fromEntity(categoryEntity);
     }
 
-    public void deleteSpend(SpendJson spend) {
-        executeInTransaction(connection -> {
-                    new JdbcSpendDao(connection).deleteById(spend.getId());
-                },
-                Database.SPEND);
+    @Override
+    public CategoryJson getCategoryByName(String username, String name) {
+        return spendRepository.findCategoryByUsernameAndCategoryName(username, name)
+                .map(CategoryJson::fromEntity)
+                .orElse(null);
     }
+
+
+    @Override
+    public void deleteSpend(SpendJson spend) {
+        executeInXaTransaction(() -> {
+            spendRepository.findById(spend.getId())
+                    .ifPresent(spendRepository::delete);
+            return null;
+        });
+    }
+
+    @Override
+    public List<SpendJson> getSpendsByDescription(String username, String description) {
+        List<SpendEntity> foundSpends = spendRepository.findAllByUsernameAndSpendDescription(username, description);
+        return foundSpends.stream().map(SpendJson::fromEntity).collect(Collectors.toList());
+    }
+
 
     public void deleteCategory(CategoryJson category) {
-        if (Objects.isNull(category.getId())) {
-            executeInTransaction(connection -> {
-                        JdbcCategoryDao categoryDao = new JdbcCategoryDao(connection);
-                        categoryDao.findByUsernameAndCategoryName(category.getUsername(), category.getName())
-                                .ifPresent(entity -> categoryDao.deleteById(entity.getId()));
-                    },
-                    Database.SPEND);
-        } else {
-            executeInTransaction(connection -> {
-                        new JdbcCategoryDao(connection).deleteById(category.getId());
-                    },
-                    Database.SPEND);
-        }
+        executeInXaTransaction(() -> {
+            spendRepository.findCategoryById(category.getId())
+                    .ifPresent(spendRepository::deleteCategory);
+            return null;
+        });
     }
 }

@@ -33,7 +33,7 @@ public class SpringJdbcUserdataUserDao implements UserdataUserDao {
                     statement.setString(4, user.getSurname());
                     statement.setBytes(5, user.getPhoto());
                     statement.setBytes(6, user.getPhotoSmall());
-                    statement.setString(7, user.getFullname());
+                    statement.setString(7, user.getFullName());
                     return statement;
                 },
                 keyHolder

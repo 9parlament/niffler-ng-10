@@ -1,0 +1,19 @@
+package guru.qa.niffler.database.repository;
+
+import guru.qa.niffler.model.entity.UserEntity;
+
+import java.util.Optional;
+import java.util.UUID;
+
+public interface UserdataUserRepository {
+
+    UserEntity create(UserEntity user);
+
+    Optional<UserEntity> findById(UUID id);
+
+    Optional<UserEntity> findByUsername(String username);
+
+    void createFriendship(UserEntity requester, UserEntity addressee);
+
+    void createInvitation(UserEntity requester, UserEntity addressee);
+}

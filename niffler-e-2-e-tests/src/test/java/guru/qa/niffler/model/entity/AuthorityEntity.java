@@ -22,7 +22,7 @@ public class AuthorityEntity {
     @GeneratedValue
     private UUID id;
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private AuthUserEntity authUser;
     private String authority;
 

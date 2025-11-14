@@ -1,29 +1,38 @@
 package guru.qa.niffler.model.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.FriendshipStatus;
+import guru.qa.niffler.model.entity.UserEntity;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
+import java.util.Arrays;
 import java.util.UUID;
 
-public record UserJson(
-        @JsonProperty("id")
-        UUID id,
-        @JsonProperty("username")
-        String username,
-        @JsonProperty("firstname")
-        String firstname,
-        @JsonProperty("surname")
-        String surname,
-        @JsonProperty("fullname")
-        String fullname,
-        @JsonProperty("currency")
-        CurrencyValues currency,
-        @JsonProperty("photo")
-        String photo,
-        @JsonProperty("photoSmall")
-        String photoSmall,
-        @JsonProperty("friendshipStatus")
-        FriendshipStatus friendshipStatus
-) {
+@Setter
+@Getter
+@Accessors(chain = true)
+public class UserJson {
+    private UUID id;
+    private String username;
+    private String firstname;
+    private String surname;
+    private String fullname;
+    private CurrencyValues currency;
+    private String photo;
+    private String photoSmall;
+    private FriendshipStatus friendshipStatus;
+
+    public static UserJson from(UserEntity userEntity) {
+        return new UserJson()
+                .setId(userEntity.getId())
+                .setUsername(userEntity.getUsername())
+                .setFirstname(userEntity.getFirstname())
+                .setSurname(userEntity.getSurname())
+                .setFullname(userEntity.getFullName())
+                .setCurrency(userEntity.getCurrency())
+                .setPhoto(Arrays.toString(userEntity.getPhoto()))
+                .setPhotoSmall(Arrays.toString(userEntity.getPhotoSmall()));
+    }
 }
